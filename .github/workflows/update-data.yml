@@ -1,0 +1,27 @@
+name: Update data dari PDF
+on:
+  push:
+    paths: ["data/*.pdf"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r scripts/requirements.txt
+      - name: Ekstrak PDF terbaru
+        run: |
+          f=$(git log -1 --name-only --diff-filter=AM --format= -- 'data/*.pdf' | head -1)
+          echo "PDF: $f"
+          python scripts/parse_pdf.py "$f"
+      - name: Commit data.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add public/data.json
+          git diff --cached --quiet || (git commit -m "Update data otomatis dari PDF" && git push)
