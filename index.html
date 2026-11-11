@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Anggaran Bidang PPA I</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mut:#667085;--bd:#e3e7ee;--ac:#0f766e;--neg:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1419;--card:#171e26;--tx:#e8edf3;--mut:#93a0b0;--bd:#26303c;--ac:#2dd4bf;--neg:#f97066}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 20px;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.card small{color:var(--mut);display:block;font-size:12px}.card b{font-size:20px;font-variant-numeric:tabular-nums}
+input{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit;margin-bottom:14px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+.tbl{min-width:760px}
+.row{display:grid;grid-template-columns:minmax(260px,1fr) 130px 130px 130px 90px;gap:8px;padding:8px 14px;align-items:center;font-variant-numeric:tabular-nums}
+.row>div:not(.u){text-align:right}
+.head{font-size:12px;color:var(--mut);border-bottom:1px solid var(--bd);text-transform:uppercase;letter-spacing:.03em}
+summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}
+.g>summary .row{background:rgba(15,118,110,.08);font-weight:600;border-bottom:1px solid var(--bd)}
+.a>summary .row{padding-left:30px;border-bottom:1px solid var(--bd);font-weight:500}
+.it .row{padding-left:50px;font-size:14px;color:var(--mut);border-bottom:1px solid var(--bd)}
+.k{font-family:ui-monospace,monospace;font-size:12px;color:var(--ac);margin-right:6px}
+.neg{color:var(--neg)}
+.pc{position:relative}.pc i{position:absolute;left:0;right:auto;bottom:-5px;height:3px;background:var(--ac);border-radius:2px;max-width:100%}
+.tot .row{font-weight:700;background:rgba(15,118,110,.14)}
+footer{color:var(--mut);font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Dashboard Anggaran Bidang PPA I</h1>
+  <p class="sub" id="sub"></p>
+  <div class="cards" id="cards"></div>
+  <input id="q" type="search" placeholder="Cari kode, akun, atau uraian item…">
+  <div class="wrap"><div class="tbl" id="list"></div></div>
+  <footer>Sumber: Laporan Ketersediaan Dana Detail TA 2026. Realisasi = s.d. periode berjalan (periode lalu + periode ini). Klik baris untuk membuka/menutup rincian.</footer>
+</main>
+<script src="data.js"></script>
+<script>
+const rp = n => new Intl.NumberFormat('id-ID').format(n);
+const pct = (r, p) => (p ? (r / p * 100).toFixed(2).replace('.', ',') : '0,00') + '%';
+const real = i => i[3] + i[4];
+const tot = items => ({ p: items.reduce((s, i) => s + i[2], 0), r: items.reduce((s, i) => s + real(i), 0) });
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+const row = (cls, kode, nama, p, r) =>
+  `<div class="row ${cls}"><div class="u"><span class="k">${esc(kode)}</span>${esc(nama)}</div>
+   <div>${rp(p)}</div><div>${rp(r)}</div><div class="${p - r < 0 ? 'neg' : ''}">${rp(p - r)}</div>
+   <div class="pc">${pct(r, p)}<i style="width:${Math.min(100, p ? r / p * 100 : 0)}%"></i></div></div>`;
+
+function filtered(q) {
+  q = q.trim().toLowerCase();
+  return DATA.map(g => ({ ...g, akun: g.akun.map(a => ({ ...a,
+    items: a.items.filter(i => !q || `${g.kode} ${g.nama} ${a.kode} ${a.nama} ${i[0]} ${i[1]}`.toLowerCase().includes(q)) }))
+    .filter(a => a.items.length) })).filter(g => g.akun.length);
+}
+
+function render() {
+  const q = document.getElementById('q').value, open = q ? 'open' : '';
+  const data = filtered(q), all = tot(data.flatMap(g => g.akun.flatMap(a => a.items)));
+  document.getElementById('cards').innerHTML = [
+    ['Total Pagu', rp(all.p)], ['Total Realisasi', rp(all.r)],
+    ['Sisa Pagu', rp(all.p - all.r)], ['% Realisasi', pct(all.r, all.p)]
+  ].map(([l, v]) => `<div class="card"><small>${l}</small><b>${v}</b></div>`).join('');
+  document.getElementById('list').innerHTML =
+    `<div class="row head"><div>Uraian</div><div>Pagu</div><div>Realisasi</div><div>Sisa Pagu</div><div>%</div></div>` +
+    data.map(g => {
+      const gt = tot(g.akun.flatMap(a => a.items));
+      return `<details class="g" open><summary>${row('', g.kode, g.nama, gt.p, gt.r)}</summary>` +
+        g.akun.map(a => {
+          const at = tot(a.items);
+          return `<details class="a" ${open}><summary>${row('', a.kode, a.nama, at.p, at.r)}</summary>` +
+            a.items.map(i => `<div class="it">${row('', i[0], i[1], i[2], real(i))}</div>`).join('') + `</details>`;
+        }).join('') + `</details>`;
+    }).join('') +
+    `<div class="tot">${row('', '', 'JUMLAH BIDANG PPA I', all.p, all.r)}</div>`;
+}
+document.getElementById('sub').textContent = `${META.satker} · Periode ${META.periode}`;
+document.getElementById('q').addEventListener('input', render);
+render();
+</script>
+</body>
+</html>

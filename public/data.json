@@ -1,0 +1,395 @@
+{
+ "periode": "November 2026",
+ "sumber": "Laporan_Fa_Detail__16_Segmen__5_Nov.pdf",
+ "subkomponen": [
+  {
+   "kode": "6212.FAL.001.100.0D",
+   "name": "Penyerahan DIPA",
+   "pagu": 10008000,
+   "lock": 0,
+   "lalu": 0,
+   "ini": 0,
+   "sd": 0,
+   "sisa": 10008000,
+   "path": {
+    "program": "CD Program Pengelolaan Perbendaharaan, Kekayaan Negara dan Risiko",
+    "kegiatan": "CD.6212 Komunikasi, Edukasi, dan Standardisasi",
+    "ro": "FAL.001 Pembinaan Pelaksanaan Anggaran",
+    "komponen": "100 Tidak ada komponen",
+    "kro": "FAL Pengelolaan Pelaksanaan Anggaran dan Pembiayaan"
+   },
+   "akun": [
+    {
+     "kode": "521211",
+     "name": "Belanja Bahan",
+     "pagu": 7875000,
+     "lock": 0,
+     "lalu": 0,
+     "ini": 0,
+     "sd": 0,
+     "sisa": 7875000,
+     "item": [
+      {
+       "kode": "000049",
+       "name": "KDM Konsumsi Snack Panitia, Peserta Kanwil dan Narasumber",
+       "pagu": 162000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 162000
+      },
+      {
+       "kode": "000050",
+       "name": "KDM Konsumsi Makan Panitia",
+       "pagu": 468000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 468000
+      },
+      {
+       "kode": "000051",
+       "name": "KDM Konsumsi Snack Panitia",
+       "pagu": 162000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 162000
+      },
+      {
+       "kode": "000053",
+       "name": "KDM Konsumsi Makan Satker UAPPAW",
+       "pagu": 3089000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 3089000
+      },
+      {
+       "kode": "000054",
+       "name": "KDM Konsumsi Snack Satker UAPPAW",
+       "pagu": 1069000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 1069000
+      },
+      {
+       "kode": "000055",
+       "name": "KDM Konsumsi Makan Pemda",
+       "pagu": 1825000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 1825000
+      },
+      {
+       "kode": "000056",
+       "name": "KDM Konsumsi Snack Pemda",
+       "pagu": 632000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 632000
+      },
+      {
+       "kode": "000057",
+       "name": "KDM Konsumsi Makan Panitia, Peserta Kanwil dan Narasumber",
+       "pagu": 468000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 468000
+      }
+     ]
+    },
+    {
+     "kode": "521213",
+     "name": "Belanja Honor Output Kegiatan",
+     "pagu": 273000,
+     "lock": 0,
+     "lalu": 0,
+     "ini": 0,
+     "sd": 0,
+     "sisa": 273000,
+     "item": [
+      {
+       "kode": "000058",
+       "name": "Panitia Kegiatan (Pemprov)",
+       "pagu": 273000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 273000
+      }
+     ]
+    },
+    {
+     "kode": "522151",
+     "name": "Belanja Jasa Profesi",
+     "pagu": 1860000,
+     "lock": 0,
+     "lalu": 0,
+     "ini": 0,
+     "sd": 0,
+     "sisa": 1860000,
+     "item": [
+      {
+       "kode": "000059",
+       "name": "Honor Narasumber (Gubernur)",
+       "pagu": 1860000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 1860000
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kode": "6213.FAL.003.100.0A",
+   "name": "Pelaksanaan Spending Review",
+   "pagu": 1260000,
+   "lock": 0,
+   "lalu": 0,
+   "ini": 0,
+   "sd": 0,
+   "sisa": 1260000,
+   "path": {
+    "program": "CD Program Pengelolaan Perbendaharaan, Kekayaan Negara dan Risiko",
+    "kegiatan": "CD.6213 Monev Perbendaharaan, Kekayaan Negara, dan Risiko",
+    "ro": "FAL.003 Reviu Belanja Pemerintah",
+    "komponen": "100 Tidak ada komponen",
+    "kro": "FAL Pengelolaan Pelaksanaan Anggaran dan Pembiayaan"
+   },
+   "akun": [
+    {
+     "kode": "521211",
+     "name": "Belanja Bahan",
+     "pagu": 1260000,
+     "lock": 0,
+     "lalu": 0,
+     "ini": 0,
+     "sd": 0,
+     "sisa": 1260000,
+     "item": [
+      {
+       "kode": "000085",
+       "name": "KDM Konsumsi Makan Rapat",
+       "pagu": 936000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 936000
+      },
+      {
+       "kode": "000086",
+       "name": "KDM Konsumsi Snack Rapat",
+       "pagu": 324000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 324000
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kode": "6213.FAL.003.100.0C",
+   "name": "Review Pelaksanaan Anggaran",
+   "pagu": 3339000,
+   "lock": 0,
+   "lalu": 835000,
+   "ini": 0,
+   "sd": 835000,
+   "sisa": 2504000,
+   "path": {
+    "program": "CD Program Pengelolaan Perbendaharaan, Kekayaan Negara dan Risiko",
+    "kegiatan": "CD.6213 Monev Perbendaharaan, Kekayaan Negara, dan Risiko",
+    "ro": "FAL.003 Reviu Belanja Pemerintah",
+    "komponen": "100 Tidak ada komponen",
+    "kro": "FAL Pengelolaan Pelaksanaan Anggaran dan Pembiayaan"
+   },
+   "akun": [
+    {
+     "kode": "521211",
+     "name": "Belanja Bahan",
+     "pagu": 3339000,
+     "lock": 0,
+     "lalu": 835000,
+     "ini": 0,
+     "sd": 835000,
+     "sisa": 2504000,
+     "item": [
+      {
+       "kode": "000088",
+       "name": "KDM Konsumsi Makan Peserta",
+       "pagu": 2340000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 2340000
+      },
+      {
+       "kode": "000089",
+       "name": "KDM Konsumsi Snack Peserta",
+       "pagu": 810000,
+       "lock": 0,
+       "lalu": 810000,
+       "ini": 0,
+       "sd": 810000,
+       "sisa": 0
+      },
+      {
+       "kode": "000090",
+       "name": "KDM Konsumsi Makan Panitia",
+       "pagu": 140000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 140000
+      },
+      {
+       "kode": "000091",
+       "name": "KDM Konsumsi Snack Panitia",
+       "pagu": 49000,
+       "lock": 0,
+       "lalu": 25000,
+       "ini": 0,
+       "sd": 25000,
+       "sisa": 24000
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kode": "4715.EBA.994.002.HB",
+   "name": "Dukungan Tusi - Reviu Belanja Pemerintah",
+   "pagu": 16530000,
+   "lock": 0,
+   "lalu": 7994000,
+   "ini": 0,
+   "sd": 7994000,
+   "sisa": 8536000,
+   "path": {
+    "program": "WA Program Dukungan Manajemen",
+    "kegiatan": "WA.4715 Pengelolaan Keuangan, BMN, dan Umum",
+    "ro": "EBA.994 Layanan Perkantoran",
+    "komponen": "002 Operasional dan Pemeliharaan Kantor",
+    "kro": "FAL Pengelolaan Pelaksanaan Anggaran dan Pembiayaan"
+   },
+   "akun": [
+    {
+     "kode": "524111",
+     "name": "Belanja Perjalanan Dinas Biasa",
+     "pagu": 16530000,
+     "lock": 0,
+     "lalu": 7994000,
+     "ini": 0,
+     "sd": 7994000,
+     "sisa": 8536000,
+     "item": [
+      {
+       "kode": "000271",
+       "name": "Transport",
+       "pagu": 400000,
+       "lock": 0,
+       "lalu": 400000,
+       "ini": 0,
+       "sd": 400000,
+       "sisa": 0
+      },
+      {
+       "kode": "000272",
+       "name": "Akomodasi",
+       "pagu": 9026000,
+       "lock": 0,
+       "lalu": 2400000,
+       "ini": 0,
+       "sd": 2400000,
+       "sisa": 6626000
+      },
+      {
+       "kode": "000273",
+       "name": "Uang Harian",
+       "pagu": 7104000,
+       "lock": 0,
+       "lalu": 5194000,
+       "ini": 0,
+       "sd": 5194000,
+       "sisa": 1910000
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kode": "4715.EBA.994.002.HH",
+   "name": "Dukungan Pelaksanaan Tusi Prioritas Direktif Presiden",
+   "pagu": 5600000,
+   "lock": 0,
+   "lalu": 0,
+   "ini": 0,
+   "sd": 0,
+   "sisa": 5600000,
+   "path": {
+    "program": "WA Program Dukungan Manajemen",
+    "kegiatan": "WA.4715 Pengelolaan Keuangan, BMN, dan Umum",
+    "ro": "EBA.994 Layanan Perkantoran",
+    "komponen": "002 Operasional dan Pemeliharaan Kantor",
+    "kro": "FAL Pengelolaan Pelaksanaan Anggaran dan Pembiayaan"
+   },
+   "akun": [
+    {
+     "kode": "521211",
+     "name": "Belanja Bahan",
+     "pagu": 5600000,
+     "lock": 0,
+     "lalu": 0,
+     "ini": 0,
+     "sd": 0,
+     "sisa": 5600000,
+     "item": [
+      {
+       "kode": "000281",
+       "name": "Konsumsi Makan Rapat",
+       "pagu": 4160000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 4160000
+      },
+      {
+       "kode": "000282",
+       "name": "Konsumsi Snack Rapat",
+       "pagu": 1440000,
+       "lock": 0,
+       "lalu": 0,
+       "ini": 0,
+       "sd": 0,
+       "sisa": 1440000
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

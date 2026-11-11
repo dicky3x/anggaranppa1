@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Anggaran Bidang PPA I – Kanwil DJPb Riau</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f3f5f7;--sf:#fff;--ink:#162033;--mute:#5d6b82;--line:#dde3ea;--real:#0f766e;--sisa:#c2410c;--pagu:#1e3a5f;--hd:#eaf0f6}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1622;--sf:#172133;--ink:#e6ebf3;--mute:#94a3b8;--line:#27344b;--real:#2dd4bf;--sisa:#fb923c;--pagu:#7aa2d6;--hd:#1d2a40}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:1280px;margin:0 auto;padding:24px 16px 48px}
+h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
+.sub{color:var(--mute);margin:4px 0 20px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.kpi b{display:block;font:600 24px "IBM Plex Sans Condensed",sans-serif;margin-top:2px}
+.kpi small{color:var(--mute)}
+.kpi .real b{color:var(--real)}.kpi .sisa b{color:var(--sisa)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card h2{font-size:14px;margin:0 0 10px;font-weight:600}
+.chart{position:relative;height:280px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--real)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+button,input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--real)}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:860px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{background:var(--hd);position:sticky;top:0;font-weight:600}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:340px}
+tr.path td{font-size:12px;color:var(--mute);text-align:left;background:var(--bg);border-bottom:0;padding-bottom:2px}
+tr.sub td{background:var(--hd);font-weight:600}
+tr.akun td:first-child{padding-left:28px;font-weight:500}
+tr.item td:first-child{padding-left:56px;color:var(--mute)}
+tr.tot td{font-weight:600;border-top:2px solid var(--ink)}
+.tg{cursor:pointer;display:inline-block;width:16px;color:var(--mute)}
+.neg{color:var(--sisa)}.foot{color:var(--mute);font-size:12px;margin-top:10px}
+</style></head><body><main>
+<h1>Anggaran Bidang PPA I</h1>
+<p class="sub" id="meta">Memuat data…</p>
+<section class="kpi" id="kpi"></section>
+<section class="grid">
+ <div class="card"><h2>Pagu, realisasi, dan sisa per subkomponen</h2><div class="chart"><canvas id="c1"></canvas></div></div>
+ <div class="card"><h2>Komposisi pagu per akun</h2><div class="chart"><canvas id="c2"></canvas></div></div>
+</section>
+<section class="card">
+ <div class="tools"><input id="q" type="search" placeholder="Cari uraian atau kode…" aria-label="Cari">
+  <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button></div>
+ <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th></tr></thead><tbody id="tb"></tbody></table></div>
+ <p class="foot" id="foot"></p>
+</section></main>
+<script>
+const R=n=>"Rp"+Math.round(n).toLocaleString("id-ID"),N=n=>Math.round(n).toLocaleString("id-ID"),P=(a,b)=>b?(a/b*100):0,F=n=>n.toFixed(2).replace(".",",")+"%";
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let D,open=new Set();
+fetch("data.json").then(r=>r.json()).then(d=>{D=d;init()}).catch(e=>document.getElementById("meta").textContent="Gagal memuat data.json: "+e);
+function init(){
+ const S=D.subkomponen,sum=k=>S.reduce((a,s)=>a+s[k],0),pg=sum("pagu"),rl=sum("sd"),ss=sum("sisa");
+ meta.textContent=`Kanwil DJPb Provinsi Riau · Laporan Ketersediaan Dana Detail TA 2026 · Periode ${D.periode} · Sumber: ${D.sumber}`;
+ kpi.innerHTML=`<div class="card"><small>Pagu revisi</small><b>${R(pg)}</b></div>
+ <div class="card real"><small>Realisasi s.d. periode</small><b>${R(rl)}</b></div>
+ <div class="card sisa"><small>Sisa pagu</small><b>${R(ss)}</b></div>
+ <div class="card"><small>Persentase realisasi</small><b>${F(P(rl,pg))}</b></div>
+ <div class="card"><small>Realisasi periode ini</small><b>${R(sum("ini"))}</b></div>`;
+ const short=s=>s.name.replace("Dukungan Tusi - ","").replace("Dukungan Pelaksanaan Tusi ","");
+ const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:css("--ink")}}}};
+ new Chart(c1,{type:"bar",data:{labels:S.map(s=>short(s)+" ("+s.kode.split(".").slice(-2).join(".")+")"),datasets:[
+  {label:"Realisasi",data:S.map(s=>s.sd),backgroundColor:css("--real"),stack:"a"},
+  {label:"Sisa pagu",data:S.map(s=>s.sisa),backgroundColor:css("--sisa"),stack:"a"}]},
+  options:{...base,indexAxis:"y",scales:{x:{stacked:true,ticks:{color:css("--mute"),callback:v=>N(v/1e6)+" jt"},grid:{color:css("--line")}},y:{stacked:true,ticks:{color:css("--ink")},grid:{display:false}}},
+  plugins:{...base.plugins,tooltip:{callbacks:{label:c=>c.dataset.label+": "+R(c.raw)}}}}});
+ const ak={};S.forEach(s=>s.akun.forEach(a=>{const k=a.kode+" "+a.name;ak[k]=(ak[k]||0)+a.pagu}));
+ new Chart(c2,{type:"doughnut",data:{labels:Object.keys(ak),datasets:[{data:Object.values(ak),borderColor:css("--sf"),backgroundColor:["#1e3a5f","#0f766e","#c2410c","#7c3aed","#ca8a04","#be185d","#4b5563"]}]},
+  options:{...base,plugins:{legend:{position:"bottom",labels:{color:css("--ink"),boxWidth:10}},tooltip:{callbacks:{label:c=>R(c.raw)}}}}});
+ foot.textContent="Realisasi = kolom “s.d. Periode” pada laporan. Klik baris subkomponen atau akun untuk membuka/menutup rinciannya.";
+ S.forEach(s=>{open.add(s.kode);});render();
+ q.oninput=render;ex.onclick=()=>{S.forEach(s=>{open.add(s.kode);s.akun.forEach(a=>open.add(s.kode+a.kode))});render()};
+ co.onclick=()=>{open.clear();render()};lv.onclick=()=>{open.clear();S.forEach(s=>open.add(s.kode));render()};
+}
+function cells(x){const p=P(x.sd,x.pagu);return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(p,100)}%"></i></div></td>`}
+function render(){
+ const t=q.value.trim().toLowerCase(),has=x=>!t||(x.kode+" "+x.name).toLowerCase().includes(t);
+ let h="",tot={pagu:0,lalu:0,ini:0,sd:0,sisa:0};
+ D.subkomponen.forEach(s=>{
+  const as=s.akun.map(a=>({a,it:a.item.filter(has)})).filter(o=>!t||has(s)||has(o.a)||o.it.length);
+  if(t&&!as.length&&!has(s))return;
+  Object.keys(tot).forEach(k=>tot[k]+=s[k]);
+  const so=open.has(s.kode)||!!t,pth=Object.values(s.path).join("  ›  ");
+  h+=`<tr class="path"><td colspan="8">${pth}</td></tr><tr class="sub" data-k="${s.kode}"><td><span class="tg">${so?"▾":"▸"}</span>${s.kode} — ${s.name}</td>${cells(s)}</tr>`;
+  if(!so)return;
+  as.forEach(({a,it})=>{const key=s.kode+a.kode,ao=open.has(key)||!!t;
+   h+=`<tr class="akun" data-k="${key}"><td><span class="tg">${a.item.length?(ao?"▾":"▸"):""}</span>${a.kode} — ${a.name}</td>${cells(a)}</tr>`;
+   if(ao)(t&&!has(a)&&!has(s)?it:a.item).forEach(i=>h+=`<tr class="item"><td>${i.kode} ${i.name}</td>${cells(i)}</tr>`)});
+ });
+ h+=`<tr class="tot"><td>Total bidang PPA I</td>${cells({...tot,name:""})}</tr>`;
+ tb.innerHTML=h;
+ tb.querySelectorAll("tr[data-k]").forEach(r=>r.onclick=()=>{const k=r.dataset.k;open.has(k)?open.delete(k):open.add(k);render()});
+}
+</script></body></html>
