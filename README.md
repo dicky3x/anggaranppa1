@@ -5,6 +5,7 @@ Situs statis (HTML + Chart.js) yang membaca `public/data.json`. Tanpa build step
 ## Struktur
 - `public/index.html`  tampilan KPI, grafik, tabel bertingkat
 - `public/data.json`   data hasil ekstrak PDF (dibuat oleh skrip)
+- `scripts/requirements.txt` dependensi skrip (sengaja tidak di root agar Vercel tidak mengira ini proyek Python)
 - `scripts/parse_pdf.py`  ekstrak PDF Laporan Ketersediaan Dana Detail → `data.json`
 
 ## Deploy pertama
@@ -13,7 +14,7 @@ Situs statis (HTML + Chart.js) yang membaca `public/data.json`. Tanpa build step
 
 ## Update dengan PDF baru
 ```bash
-pip install -r requirements.txt
+pip install -r scripts/requirements.txt
 python scripts/parse_pdf.py "Laporan_terbaru.pdf"   # menimpa public/data.json
 git add public/data.json && git commit -m "update data" && git push
 ```
