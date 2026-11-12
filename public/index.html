@@ -24,7 +24,7 @@ h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 button,input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
 button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--real)}
-.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:1500px}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:1750px}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th{background:var(--hd);position:sticky;top:0;z-index:3;font-weight:600}
 th:first-child,td:first-child{text-align:left;white-space:normal;min-width:340px;max-width:340px;position:sticky;left:0;z-index:2;background:var(--sf);box-shadow:1px 0 0 var(--line)}
@@ -44,7 +44,7 @@ th.pl{background:color-mix(in srgb,var(--real) 18%,var(--hd))}
 .sm{padding:2px 8px;font-size:12px;margin-left:4px}
 #bn{margin:0 0 10px;padding:8px 12px;border-radius:6px;background:color-mix(in srgb,var(--sisa) 14%,var(--sf));border:1px solid var(--sisa);display:none}
 dialog{border:1px solid var(--line);border-radius:10px;background:var(--sf);color:var(--ink);padding:18px;width:min(420px,92vw)}
-dialog::backdrop{background:rgba(0,0,0,.45)}dialog label{display:block;margin:10px 0 2px;font-weight:500}dialog input{width:100%}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog label{display:block;margin:10px 0 2px;font-weight:500}dialog input{width:100%}dialog textarea{width:100%;font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:6px;padding:6px 10px;resize:vertical}
 body:not(.ok) main{display:none}
 #lg{position:fixed;inset:0;background:var(--bg);display:none;place-items:center;z-index:9}
 #lg form{background:var(--sf);border:1px solid var(--line);border-radius:10px;padding:24px;width:min(360px,92vw)}
@@ -56,8 +56,8 @@ body:not(.ok) main{display:none}
  <p id="le" class="neg" style="margin:0 0 8px;min-height:1.2em"></p>
  <button style="width:100%;background:var(--real);color:#fff;border-color:var(--real)">Masuk</button></form></div>
 <main>
-<h1>Anggaran Bidang PPA I</h1>
-<p class="sub" id="meta">Memuat data…</p>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><h1>Anggaran Bidang PPA I</h1>
+<p class="sub" id="meta">Memuat data…</p></div><button id="lo" style="flex:none">Keluar</button></div>
 <section class="kpi" id="kpi"></section>
 <section class="grid">
  <div class="card"><h2>Pagu, realisasi, dan sisa per subkomponen</h2><div class="chart"><canvas id="c1"></canvas></div></div>
@@ -66,12 +66,13 @@ body:not(.ok) main{display:none}
 <section class="card">
  <div id="bn"></div>
  <div class="tools"><input id="q" type="search" placeholder="Cari uraian atau kode…" aria-label="Cari">
-  <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button><button id="lo" style="margin-left:auto">Keluar</button></div>
- <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th><th class="pl">Rencana kegiatan</th><th class="pl">Tanggal rencana</th><th class="pl">Estimasi biaya</th><th class="pl">Sisa setelah estimasi</th><th class="pl">Aksi</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button></div>
+ <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th><th class="pl">Rencana kegiatan</th><th class="pl">Keterangan</th><th class="pl">Tanggal rencana</th><th class="pl">Estimasi biaya</th><th class="pl">Sisa setelah estimasi</th><th class="pl">Aksi</th></tr></thead><tbody id="tb"></tbody></table></div>
  <p class="foot" id="foot"></p>
 </section></main>
 <dialog id="dlg"><h2 id="dt" style="margin:0 0 4px;font-size:15px"></h2><small id="ds" style="color:var(--mute)"></small>
  <label for="fk">Rencana kegiatan</label><input id="fk" maxlength="200">
+ <label for="fn">Keterangan (opsional)</label><textarea id="fn" rows="2" maxlength="300"></textarea>
  <label for="ft">Tanggal rencana</label><input id="ft" type="date">
  <label for="fb">Estimasi biaya (Rp)</label><input id="fb" type="number" min="0" step="1000">
  <p id="fe" class="neg" style="margin:8px 0 0"></p>
@@ -151,8 +152,8 @@ function kpis(){
 const btn=(a,k,id,tx)=>`<button class="sm" data-a="${a}" data-k="${k}" ${id?`data-id="${id}"`:""}>${tx}</button>`;
 function cells(x,e,n,aksi){const p=P(x.sd,x.pagu),sa=x.sisa-e;
  return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(Math.max(p,0),100)}%"></i></div></td>
- <td class="l">${n?n+" rencana":"–"}</td><td>–</td><td>${e?N(e):"–"}</td><td class="${sa<0?"neg":""}">${N(sa)}</td><td>${aksi||""}</td>`}
-function planRows(k,pad){return lst(k).map(p=>`<tr class="plan"><td style="padding-left:${pad}px">↳ Rencana kegiatan</td>${"<td></td>".repeat(7)}<td class="l">${esc(p.keg)}</td><td>${tgl(p.tgl)}</td><td>${N(p.biaya)}</td><td></td><td>${btn("edit",k,p.id,"Ubah")}${btn("del",k,p.id,"Hapus")}</td></tr>`).join("")}
+ <td class="l">${n?n+" rencana":"–"}</td><td class="l">–</td><td>–</td><td>${e?N(e):"–"}</td><td class="${sa<0?"neg":""}">${N(sa)}</td><td>${aksi||""}</td>`}
+function planRows(k,pad){return lst(k).map(p=>`<tr class="plan"><td style="padding-left:${pad}px">↳ Rencana kegiatan</td>${"<td></td>".repeat(7)}<td class="l">${esc(p.keg)}</td><td class="l">${p.ket?esc(p.ket):"–"}</td><td>${tgl(p.tgl)}</td><td>${N(p.biaya)}</td><td></td><td>${btn("edit",k,p.id,"Ubah")}${btn("del",k,p.id,"Hapus")}</td></tr>`).join("")}
 function render(){
  kpis();
  const t=q.value.trim().toLowerCase(),has=x=>!t||(x.kode+" "+x.name).toLowerCase().includes(t);
@@ -162,7 +163,7 @@ function render(){
   if(t&&!as.length&&!has(s))return;
   Object.keys(tot).forEach(k=>tot[k]+=s[k]);te+=sEst(s);tn+=sCnt(s);
   const so=open.has(s.kode)||!!t;
-  h+=`<tr class="path"><td colspan="13"><span class="pt">${Object.values(s.path).map(esc).join("  ›  ")}</span></td></tr><tr class="sub" data-k="${s.kode}"><td><span class="tg">${so?"▾":"▸"}</span>${esc(s.kode)} — ${esc(s.name)}</td>${cells(s,sEst(s),sCnt(s),btn("add",s.kode,"","+ Rencana"))}</tr>`+planRows(s.kode,28);
+  h+=`<tr class="path"><td colspan="14"><span class="pt">${Object.values(s.path).map(esc).join("  ›  ")}</span></td></tr><tr class="sub" data-k="${s.kode}"><td><span class="tg">${so?"▾":"▸"}</span>${esc(s.kode)} — ${esc(s.name)}</td>${cells(s,sEst(s),sCnt(s),btn("add",s.kode,"","+ Rencana"))}</tr>`+planRows(s.kode,28);
   if(!so)return;
   as.forEach(({a,it})=>{const key=aKey(s,a),ao=open.has(key)||!!t;
    h+=`<tr class="akun" data-k="${key}"><td><span class="tg">${a.item.length?(ao?"▾":"▸"):""}</span>${a.kode} — ${esc(a.name)}</td>${cells(a,aEst(s,a),aCnt(s,a),btn("add",key,"","+ Rencana"))}</tr>`;
@@ -179,12 +180,12 @@ async function act(a,key,id){
  if(a==="del"){if(confirm("Hapus rencana ini?")&&await send({op:"delete",key,id}))render();return}
  const cur=id?lst(key).find(p=>p.id===id):null;
  dt.textContent=cur?"Ubah rencana kegiatan":"Tambah rencana kegiatan";ds.textContent=key.split("|").join(" › ");
- fk.value=cur?cur.keg:"";ft.value=cur?cur.tgl:"";fb.value=cur?cur.biaya:"";fe.textContent="";
+ fk.value=cur?cur.keg:"";fn.value=cur?cur.ket||"":"";ft.value=cur?cur.tgl:"";fb.value=cur?cur.biaya:"";fe.textContent="";
  fs.onclick=async()=>{
   const keg=fk.value.trim(),biaya=Number(fb.value);
   if(!keg)return fe.textContent="Rencana kegiatan wajib diisi.";
   if(!(biaya>=0)||fb.value==="")return fe.textContent="Estimasi biaya harus angka 0 atau lebih.";
-  fs.disabled=true;const ok=await send({op:"upsert",key,plan:{id:cur?cur.id:undefined,keg,tgl:ft.value,biaya}});fs.disabled=false;
+  fs.disabled=true;const ok=await send({op:"upsert",key,plan:{id:cur?cur.id:undefined,keg,ket:fn.value.trim(),tgl:ft.value,biaya}});fs.disabled=false;
   if(ok){dlg.close();render()}};
  dlg.showModal();fk.focus();
 }

@@ -27,12 +27,12 @@ module.exports = async (req, res) => {
     const plans = await load();
     if (b.op === "upsert") {
       const p = b.plan || {};
-      const keg = String(p.keg || "").trim().slice(0, 200), tgl = String(p.tgl || ""), biaya = Math.round(Number(p.biaya));
+      const keg = String(p.keg || "").trim().slice(0, 200), ket = String(p.ket || "").trim().slice(0, 300), tgl = String(p.tgl || ""), biaya = Math.round(Number(p.biaya));
       if (!keg || !(biaya >= 0) || biaya > 1e12 || (tgl && !/^\d{4}-\d{2}-\d{2}$/.test(tgl)))
         return res.status(400).json({ error: "Isian tidak valid" });
       const list = plans[key] || [];
       const id = p.id && list.some((x) => x.id === p.id) ? p.id : crypto.randomUUID();
-      const rec = { id, keg, tgl, biaya }, i = list.findIndex((x) => x.id === id);
+      const rec = { id, keg, ket, tgl, biaya }, i = list.findIndex((x) => x.id === id);
       i >= 0 ? (list[i] = rec) : list.push(rec);
       plans[key] = list;
     } else if (b.op === "delete") {
