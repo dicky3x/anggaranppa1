@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ekstrak data bidang PPA I dari PDF Laporan Ketersediaan Dana Detail -> public/data.json
+"""Ekstrak data bidang PPA I dari PDF Laporan Ketersediaan Dana Detail -> private/data.json
 Pakai: python scripts/parse_pdf.py path/laporan.pdf
 """
 import re, sys, json, pdfplumber
@@ -110,7 +110,7 @@ def parse(pdf_path):
 if __name__ == "__main__":
     if len(sys.argv) < 2: sys.exit(__doc__)
     data = parse(sys.argv[1])
-    Path(__file__).resolve().parent.parent.joinpath("public/data.json").write_text(
+    Path(__file__).resolve().parent.parent.joinpath("private/data.json").write_text(
         json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     t = sum(s["pagu"] for s in data["subkomponen"])
     print(f'OK: {len(data["subkomponen"])} subkomponen, total pagu {t:,}')

@@ -24,7 +24,7 @@ h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 button,input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
 button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--real)}
-.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:860px}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:1500px}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th{background:var(--hd);position:sticky;top:0;font-weight:600}
 th:first-child,td:first-child{text-align:left;white-space:normal;min-width:340px}
@@ -34,8 +34,25 @@ tr.akun td:first-child{padding-left:28px;font-weight:500}
 tr.item td:first-child{padding-left:56px;color:var(--mute)}
 tr.tot td{font-weight:600;border-top:2px solid var(--ink)}
 .tg{cursor:pointer;display:inline-block;width:16px;color:var(--mute)}
+tr.plan td{font-size:13px;background:color-mix(in srgb,var(--real) 7%,var(--sf))}
+tr.plan td:first-child{padding-left:84px;color:var(--mute)}
+td.l{text-align:left;white-space:normal;min-width:200px}
+th.pl{background:color-mix(in srgb,var(--real) 18%,var(--hd))}
+.sm{padding:2px 8px;font-size:12px;margin-left:4px}
+#bn{margin:0 0 10px;padding:8px 12px;border-radius:6px;background:color-mix(in srgb,var(--sisa) 14%,var(--sf));border:1px solid var(--sisa);display:none}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--sf);color:var(--ink);padding:18px;width:min(420px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}dialog label{display:block;margin:10px 0 2px;font-weight:500}dialog input{width:100%}
+body:not(.ok) main{display:none}
+#lg{position:fixed;inset:0;background:var(--bg);display:none;place-items:center;z-index:9}
+#lg form{background:var(--sf);border:1px solid var(--line);border-radius:10px;padding:24px;width:min(360px,92vw)}
+#lg h1{font-size:22px;margin-bottom:4px}#lg input{width:100%;margin:12px 0 0}#lg input+input{margin-bottom:8px}
 .neg{color:var(--sisa)}.foot{color:var(--mute);font-size:12px;margin-top:10px}
-</style></head><body><main>
+</style></head><body><div id="lg"><form id="lf"><h1>Dashboard PPA I</h1><small style="color:var(--mute)">Kanwil DJPb Riau · silakan login</small>
+ <input id="lu" placeholder="Pengguna" autocomplete="username" aria-label="Pengguna" required>
+ <input id="lp" type="password" placeholder="Kata sandi" autocomplete="current-password" aria-label="Kata sandi" required>
+ <p id="le" class="neg" style="margin:0 0 8px;min-height:1.2em"></p>
+ <button style="width:100%;background:var(--real);color:#fff;border-color:var(--real)">Masuk</button></form></div>
+<main>
 <h1>Anggaran Bidang PPA I</h1>
 <p class="sub" id="meta">Memuat data…</p>
 <section class="kpi" id="kpi"></section>
@@ -44,56 +61,128 @@ tr.tot td{font-weight:600;border-top:2px solid var(--ink)}
  <div class="card"><h2>Komposisi pagu per akun</h2><div class="chart"><canvas id="c2"></canvas></div></div>
 </section>
 <section class="card">
+ <div id="bn"></div>
  <div class="tools"><input id="q" type="search" placeholder="Cari uraian atau kode…" aria-label="Cari">
-  <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button></div>
- <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th></tr></thead><tbody id="tb"></tbody></table></div>
+  <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button><button id="lo" style="margin-left:auto">Keluar</button></div>
+ <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th><th class="pl">Rencana kegiatan</th><th class="pl">Tanggal rencana</th><th class="pl">Estimasi biaya</th><th class="pl">Sisa setelah estimasi</th><th class="pl">Aksi</th></tr></thead><tbody id="tb"></tbody></table></div>
  <p class="foot" id="foot"></p>
 </section></main>
+<dialog id="dlg"><h2 id="dt" style="margin:0 0 4px;font-size:15px"></h2><small id="ds" style="color:var(--mute)"></small>
+ <label for="fk">Rencana kegiatan</label><input id="fk" maxlength="200">
+ <label for="ft">Tanggal rencana</label><input id="ft" type="date">
+ <label for="fb">Estimasi biaya (Rp)</label><input id="fb" type="number" min="0" step="1000">
+ <p id="fe" class="neg" style="margin:8px 0 0"></p>
+ <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button id="fx">Batal</button><button id="fs" style="background:var(--real);color:#fff;border-color:var(--real)">Simpan</button></div></dialog>
 <script>
 const R=n=>"Rp"+Math.round(n).toLocaleString("id-ID"),N=n=>Math.round(n).toLocaleString("id-ID"),P=(a,b)=>b?(a/b*100):0,F=n=>n.toFixed(2).replace(".",",")+"%";
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-let D,open=new Set();
-fetch("data.json").then(r=>r.json()).then(d=>{D=d;init()}).catch(e=>document.getElementById("meta").textContent="Gagal memuat data.json: "+e);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tgl=t=>t?new Date(t+"T00:00:00").toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}):"–";
+const store={get(k){try{return sessionStorage.getItem(k)}catch{return null}},set(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch{}}};
+let D,plans={},mode="server",open=new Set(),c1;
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),lst=k=>plans[k]||[],est=k=>sum(lst(k),p=>p.biaya);
+const aKey=(s,a)=>s.kode+"|"+a.kode,iKey=(s,a,i)=>aKey(s,a)+"|"+i.kode;
+const aEst=(s,a)=>est(aKey(s,a))+sum(a.item,i=>est(iKey(s,a,i)));
+const aCnt=(s,a)=>lst(aKey(s,a)).length+sum(a.item,i=>lst(iKey(s,a,i)).length);
+const sEst=s=>sum(s.akun,a=>aEst(s,a)),sCnt=s=>sum(s.akun,a=>aCnt(s,a));
+async function load(){
+ try{const r=await fetch("/api/plan");if(!r.ok)throw 0;plans=(await r.json()).plans||{};mode="server"}
+ catch{mode="local";try{plans=JSON.parse(localStorage.getItem("ppa1plans")||"{}")}catch{plans={}}}
+}
+async function send(b){
+ if(mode==="local"){
+  const l=plans[b.key]||[];
+  if(b.op==="upsert"){const id=b.plan.id||(crypto.randomUUID?crypto.randomUUID():String(Date.now()));const rec={...b.plan,id},i=l.findIndex(x=>x.id===id);i>=0?l[i]=rec:l.push(rec);plans[b.key]=l}
+  else{plans[b.key]=l.filter(x=>x.id!==b.id);if(!plans[b.key].length)delete plans[b.key]}
+  try{localStorage.setItem("ppa1plans",JSON.stringify(plans))}catch{}
+  return true}
+ const r=await fetch("/api/plan",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(b)});
+ if(r.status===401){showLogin();return false}
+ if(!r.ok){let m="";try{m=(await r.json()).error}catch{}alert("Gagal menyimpan. "+m);return false}
+ plans=(await r.json()).plans;return true;
+}
+let inited=false;
+function showLogin(){lg.style.display="grid";(lu.value?lp:lu).focus()}
+async function boot(){
+ try{const r=await fetch("/api/data");
+  if(r.status===401)return showLogin();
+  if(!r.ok){let m="";try{m=(await r.json()).error}catch{}lg.style.display="grid";le.textContent="Gagal memuat data. "+m;return}
+  D=await r.json();await load();lg.style.display="none";document.body.classList.add("ok");if(!inited){inited=true;init()}else render()
+ }catch(e){lg.style.display="grid";le.textContent="Gagal memuat data: "+e}
+}
+lf.onsubmit=async e=>{e.preventDefault();le.textContent="";
+ const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({user:lu.value.trim(),password:lp.value})});
+ if(r.ok){lp.value="";boot()}else{let m="";try{m=(await r.json()).error}catch{}le.textContent=m||("Gagal masuk ("+r.status+")")}};
+lo.onclick=async()=>{await fetch("/api/login",{method:"DELETE"});location.reload()};
+boot();
 function init(){
- const S=D.subkomponen,sum=k=>S.reduce((a,s)=>a+s[k],0),pg=sum("pagu"),rl=sum("sd"),ss=sum("sisa");
  meta.textContent=`Kanwil DJPb Provinsi Riau · Laporan Ketersediaan Dana Detail TA 2026 · Periode ${D.periode} · Sumber: ${D.sumber}`;
+ if(mode==="local"){bn.style.display="block";bn.textContent="Database belum terhubung: rencana hanya tersimpan di browser ini. Hubungkan Upstash Redis di Vercel agar dibagi ke semua pengguna (lihat README)."}
+ const S=D.subkomponen,base={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:css("--ink")}}}};
+ c1=new Chart(document.getElementById("c1"),{type:"bar",data:{labels:S.map(s=>s.name.replace("Dukungan Tusi - ","").replace("Dukungan Pelaksanaan Tusi ","")+" ("+s.kode.split(".").slice(-2).join(".")+")"),datasets:[
+  {label:"Realisasi",data:[],backgroundColor:css("--real"),stack:"a"},
+  {label:"Estimasi rencana",data:[],backgroundColor:"#ca8a04",stack:"a"},
+  {label:"Sisa setelah estimasi",data:[],backgroundColor:css("--sisa"),stack:"a"}]},
+  options:{...base,indexAxis:"y",scales:{x:{stacked:true,ticks:{color:css("--mute"),callback:v=>N(v/1e6)+" jt"},grid:{color:css("--line")}},y:{stacked:true,ticks:{color:css("--ink")},grid:{display:false}}},
+  plugins:{...base.plugins,tooltip:{callbacks:{label:c=>c.dataset.label+": "+R(c.raw)}}}}});
+ const ak={};S.forEach(s=>s.akun.forEach(a=>{const k=a.kode+" "+a.name;ak[k]=(ak[k]||0)+a.pagu}));
+ new Chart(document.getElementById("c2"),{type:"doughnut",data:{labels:Object.keys(ak),datasets:[{data:Object.values(ak),borderColor:css("--sf"),backgroundColor:["#1e3a5f","#0f766e","#c2410c","#7c3aed","#ca8a04","#be185d","#4b5563"]}]},
+  options:{...base,plugins:{legend:{position:"bottom",labels:{color:css("--ink"),boxWidth:10}},tooltip:{callbacks:{label:c=>R(c.raw)}}}}});
+ foot.textContent="Realisasi = kolom “s.d. Periode” pada laporan. Sisa setelah estimasi = sisa pagu − estimasi biaya rencana (merah jika melebihi sisa). Klik baris untuk membuka/menutup; gunakan tombol “+ Rencana” pada baris item.";
+ S.forEach(s=>open.add(s.kode));render();
+ q.oninput=render;ex.onclick=()=>{S.forEach(s=>{open.add(s.kode);s.akun.forEach(a=>open.add(aKey(s,a)))});render()};
+ co.onclick=()=>{open.clear();render()};lv.onclick=()=>{open.clear();S.forEach(s=>open.add(s.kode));render()};
+ fx.onclick=()=>dlg.close();
+}
+function kpis(){
+ const S=D.subkomponen,t=k=>sum(S,s=>s[k]),pg=t("pagu"),rl=t("sd"),ss=t("sisa"),e=sum(S,sEst);
  kpi.innerHTML=`<div class="card"><small>Pagu revisi</small><b>${R(pg)}</b></div>
  <div class="card real"><small>Realisasi s.d. periode</small><b>${R(rl)}</b></div>
  <div class="card sisa"><small>Sisa pagu</small><b>${R(ss)}</b></div>
  <div class="card"><small>Persentase realisasi</small><b>${F(P(rl,pg))}</b></div>
- <div class="card"><small>Realisasi periode ini</small><b>${R(sum("ini"))}</b></div>`;
- const short=s=>s.name.replace("Dukungan Tusi - ","").replace("Dukungan Pelaksanaan Tusi ","");
- const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:css("--ink")}}}};
- new Chart(c1,{type:"bar",data:{labels:S.map(s=>short(s)+" ("+s.kode.split(".").slice(-2).join(".")+")"),datasets:[
-  {label:"Realisasi",data:S.map(s=>s.sd),backgroundColor:css("--real"),stack:"a"},
-  {label:"Sisa pagu",data:S.map(s=>s.sisa),backgroundColor:css("--sisa"),stack:"a"}]},
-  options:{...base,indexAxis:"y",scales:{x:{stacked:true,ticks:{color:css("--mute"),callback:v=>N(v/1e6)+" jt"},grid:{color:css("--line")}},y:{stacked:true,ticks:{color:css("--ink")},grid:{display:false}}},
-  plugins:{...base.plugins,tooltip:{callbacks:{label:c=>c.dataset.label+": "+R(c.raw)}}}}});
- const ak={};S.forEach(s=>s.akun.forEach(a=>{const k=a.kode+" "+a.name;ak[k]=(ak[k]||0)+a.pagu}));
- new Chart(c2,{type:"doughnut",data:{labels:Object.keys(ak),datasets:[{data:Object.values(ak),borderColor:css("--sf"),backgroundColor:["#1e3a5f","#0f766e","#c2410c","#7c3aed","#ca8a04","#be185d","#4b5563"]}]},
-  options:{...base,plugins:{legend:{position:"bottom",labels:{color:css("--ink"),boxWidth:10}},tooltip:{callbacks:{label:c=>R(c.raw)}}}}});
- foot.textContent="Realisasi = kolom “s.d. Periode” pada laporan. Klik baris subkomponen atau akun untuk membuka/menutup rinciannya.";
- S.forEach(s=>{open.add(s.kode);});render();
- q.oninput=render;ex.onclick=()=>{S.forEach(s=>{open.add(s.kode);s.akun.forEach(a=>open.add(s.kode+a.kode))});render()};
- co.onclick=()=>{open.clear();render()};lv.onclick=()=>{open.clear();S.forEach(s=>open.add(s.kode));render()};
+ <div class="card"><small>Estimasi biaya rencana</small><b>${R(e)}</b></div>
+ <div class="card ${ss-e<0?"sisa":"real"}"><small>Sisa setelah estimasi</small><b>${R(ss-e)}</b></div>`;
+ c1.data.datasets[0].data=S.map(s=>s.sd);c1.data.datasets[1].data=S.map(s=>Math.min(sEst(s),s.sisa));
+ c1.data.datasets[2].data=S.map(s=>Math.max(0,s.sisa-sEst(s)));c1.update();
 }
-function cells(x){const p=P(x.sd,x.pagu);return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(p,100)}%"></i></div></td>`}
+const btn=(a,k,id,tx)=>`<button class="sm" data-a="${a}" data-k="${k}" ${id?`data-id="${id}"`:""}>${tx}</button>`;
+function cells(x,e,n,aksi){const p=P(x.sd,x.pagu),sa=x.sisa-e;
+ return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(Math.max(p,0),100)}%"></i></div></td>
+ <td class="l">${n?n+" rencana":"–"}</td><td>–</td><td>${e?N(e):"–"}</td><td class="${sa<0?"neg":""}">${N(sa)}</td><td>${aksi||""}</td>`}
+function planRows(k,lab){return lst(k).map(p=>`<tr class="plan"><td>↳ Rencana kegiatan</td>${"<td></td>".repeat(7)}<td class="l">${esc(p.keg)}</td><td>${tgl(p.tgl)}</td><td>${N(p.biaya)}</td><td></td><td>${btn("edit",k,p.id,"Ubah")}${btn("del",k,p.id,"Hapus")}</td></tr>`).join("")}
 function render(){
+ kpis();
  const t=q.value.trim().toLowerCase(),has=x=>!t||(x.kode+" "+x.name).toLowerCase().includes(t);
- let h="",tot={pagu:0,lalu:0,ini:0,sd:0,sisa:0};
+ let h="",tot={pagu:0,lalu:0,ini:0,sd:0,sisa:0},te=0,tn=0;
  D.subkomponen.forEach(s=>{
   const as=s.akun.map(a=>({a,it:a.item.filter(has)})).filter(o=>!t||has(s)||has(o.a)||o.it.length);
   if(t&&!as.length&&!has(s))return;
-  Object.keys(tot).forEach(k=>tot[k]+=s[k]);
-  const so=open.has(s.kode)||!!t,pth=Object.values(s.path).join("  ›  ");
-  h+=`<tr class="path"><td colspan="8">${pth}</td></tr><tr class="sub" data-k="${s.kode}"><td><span class="tg">${so?"▾":"▸"}</span>${s.kode} — ${s.name}</td>${cells(s)}</tr>`;
+  Object.keys(tot).forEach(k=>tot[k]+=s[k]);te+=sEst(s);tn+=sCnt(s);
+  const so=open.has(s.kode)||!!t;
+  h+=`<tr class="path"><td colspan="13">${Object.values(s.path).map(esc).join("  ›  ")}</td></tr><tr class="sub" data-k="${s.kode}"><td><span class="tg">${so?"▾":"▸"}</span>${esc(s.kode)} — ${esc(s.name)}</td>${cells(s,sEst(s),sCnt(s))}</tr>`;
   if(!so)return;
-  as.forEach(({a,it})=>{const key=s.kode+a.kode,ao=open.has(key)||!!t;
-   h+=`<tr class="akun" data-k="${key}"><td><span class="tg">${a.item.length?(ao?"▾":"▸"):""}</span>${a.kode} — ${a.name}</td>${cells(a)}</tr>`;
-   if(ao)(t&&!has(a)&&!has(s)?it:a.item).forEach(i=>h+=`<tr class="item"><td>${i.kode} ${i.name}</td>${cells(i)}</tr>`)});
+  as.forEach(({a,it})=>{const key=aKey(s,a),ao=open.has(key)||!!t;
+   h+=`<tr class="akun" data-k="${key}"><td><span class="tg">${a.item.length?(ao?"▾":"▸"):""}</span>${a.kode} — ${esc(a.name)}</td>${cells(a,aEst(s,a),aCnt(s,a),a.item.length?"":btn("add",key,"","+ Rencana"))}</tr>`;
+   if(!a.item.length||ao)h+=planRows(key);
+   if(ao)(t&&!has(a)&&!has(s)?it:a.item).forEach(i=>{const k=iKey(s,a,i);
+    h+=`<tr class="item"><td>${i.kode} ${esc(i.name)}</td>${cells(i,est(k),lst(k).length,btn("add",k,"","+ Rencana"))}</tr>`+planRows(k)})});
  });
- h+=`<tr class="tot"><td>Total bidang PPA I</td>${cells({...tot,name:""})}</tr>`;
+ h+=`<tr class="tot"><td>Total bidang PPA I</td>${cells({...tot},te,tn)}</tr>`;
  tb.innerHTML=h;
  tb.querySelectorAll("tr[data-k]").forEach(r=>r.onclick=()=>{const k=r.dataset.k;open.has(k)?open.delete(k):open.add(k);render()});
+ tb.querySelectorAll("button[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();act(b.dataset.a,b.dataset.k,b.dataset.id)});
+}
+async function act(a,key,id){
+ if(a==="del"){if(confirm("Hapus rencana ini?")&&await send({op:"delete",key,id}))render();return}
+ const cur=id?lst(key).find(p=>p.id===id):null;
+ dt.textContent=cur?"Ubah rencana kegiatan":"Tambah rencana kegiatan";ds.textContent=key.split("|").slice(1).join(" › ");
+ fk.value=cur?cur.keg:"";ft.value=cur?cur.tgl:"";fb.value=cur?cur.biaya:"";fe.textContent="";
+ fs.onclick=async()=>{
+  const keg=fk.value.trim(),biaya=Number(fb.value);
+  if(!keg)return fe.textContent="Rencana kegiatan wajib diisi.";
+  if(!(biaya>=0)||fb.value==="")return fe.textContent="Estimasi biaya harus angka 0 atau lebih.";
+  fs.disabled=true;const ok=await send({op:"upsert",key,plan:{id:cur?cur.id:undefined,keg,tgl:ft.value,biaya}});fs.disabled=false;
+  if(ok){dlg.close();render()}};
+ dlg.showModal();fk.focus();
 }
 </script></body></html>
