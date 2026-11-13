@@ -15,7 +15,8 @@ h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
 .card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
 .kpi b{display:block;font:600 24px "IBM Plex Sans Condensed",sans-serif;margin-top:2px}
 .kpi small{color:var(--mute)}
-.up{grid-column:1/-1}.up ul{list-style:none;margin:8px 0 0;padding:0}.up li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}.up .d{width:215px;font-weight:600;white-space:nowrap}.up .bd{display:inline-block;margin-left:6px;padding:0 7px;border-radius:10px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--real) 16%,var(--sf));color:var(--real)}.up .bd.now{background:color-mix(in srgb,var(--sisa) 16%,var(--sf));color:var(--sisa)}.up .c{flex:1;min-width:220px}.up .c small{display:block}.up .m{white-space:nowrap;font-weight:500}
+.up{grid-column:1/-1}.up ul{list-style:none;margin:8px 0 0;padding:0}.up li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}.up .d{width:215px;font-weight:600;white-space:nowrap}.bd{display:inline-block;margin-left:6px;padding:0 7px;border-radius:10px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--real) 16%,var(--sf));color:var(--real)}.bd.now{background:color-mix(in srgb,var(--sisa) 16%,var(--sf));color:var(--sisa)}.up .c{flex:1;min-width:220px}.up .c small{display:block}.up .m{white-space:nowrap;font-weight:500}.up .ac{white-space:nowrap}
+tr.plan.x td{color:var(--mute)}tr.plan.x td.l,tr.plan.x td.nm{text-decoration:line-through}
 .kpi .real b{color:var(--real)}.kpi .sisa b{color:var(--sisa)}
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
@@ -85,11 +86,11 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const tgl=t=>t?new Date(t+"T00:00:00").toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}):"–";
 const store={get(k){try{return sessionStorage.getItem(k)}catch{return null}},set(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch{}}};
 let D,plans={},mode="server",open=new Set(),c1;
-const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),lst=k=>plans[k]||[],est=k=>sum(lst(k),p=>p.biaya);
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),lst=k=>plans[k]||[],live=p=>p.status!=="cancelled",est=k=>sum(lst(k).filter(live),p=>p.biaya),cnt=k=>lst(k).filter(live).length;
 const aKey=(s,a)=>s.kode+"|"+a.kode,iKey=(s,a,i)=>aKey(s,a)+"|"+i.kode;
 const aEst=(s,a)=>est(aKey(s,a))+sum(a.item,i=>est(iKey(s,a,i)));
-const aCnt=(s,a)=>lst(aKey(s,a)).length+sum(a.item,i=>lst(iKey(s,a,i)).length);
-const sEst=s=>est(s.kode)+sum(s.akun,a=>aEst(s,a)),sCnt=s=>lst(s.kode).length+sum(s.akun,a=>aCnt(s,a));
+const aCnt=(s,a)=>cnt(aKey(s,a))+sum(a.item,i=>cnt(iKey(s,a,i)));
+const sEst=s=>est(s.kode)+sum(s.akun,a=>aEst(s,a)),sCnt=s=>cnt(s.kode)+sum(s.akun,a=>aCnt(s,a));
 async function load(){
  try{const r=await fetch("/api/plan");if(!r.ok)throw 0;plans=(await r.json()).plans||{};mode="server"}
  catch{mode="local";try{plans=JSON.parse(localStorage.getItem("ppa1plans")||"{}")}catch{plans={}}}
@@ -97,7 +98,8 @@ async function load(){
 async function send(b){
  if(mode==="local"){
   const l=plans[b.key]||[];
-  if(b.op==="upsert"){const id=b.plan.id||(crypto.randomUUID?crypto.randomUUID():String(Date.now()));const rec={...b.plan,id},i=l.findIndex(x=>x.id===id);i>=0?l[i]=rec:l.push(rec);plans[b.key]=l}
+  if(b.op==="upsert"){const id=b.plan.id||(crypto.randomUUID?crypto.randomUUID():String(Date.now()));const i=l.findIndex(x=>x.id===id),rec={...(i>=0?l[i]:{}),...b.plan,id};i>=0?l[i]=rec:l.push(rec);plans[b.key]=l}
+  else if(b.op==="status"){const x=l.find(y=>y.id===b.id);if(x){if(b.status)x.status=b.status;else delete x.status}}
   else{plans[b.key]=l.filter(x=>x.id!==b.id);if(!plans[b.key].length)delete plans[b.key]}
   try{localStorage.setItem("ppa1plans",JSON.stringify(plans))}catch{}
   return true}
@@ -133,7 +135,7 @@ function init(){
  const ak={};S.forEach(s=>s.akun.forEach(a=>{const k=a.kode+" "+a.name;ak[k]=(ak[k]||0)+a.pagu}));
  new Chart(document.getElementById("c2"),{type:"doughnut",data:{labels:Object.keys(ak),datasets:[{data:Object.values(ak),borderColor:css("--sf"),backgroundColor:["#1e3a5f","#0f766e","#c2410c","#7c3aed","#ca8a04","#be185d","#4b5563"]}]},
   options:{...base,plugins:{legend:{position:"bottom",labels:{color:css("--ink"),boxWidth:10}},tooltip:{callbacks:{label:c=>R(c.raw)}}}}});
- foot.textContent="Realisasi = kolom “s.d. Periode” pada laporan. Sisa setelah estimasi = sisa pagu − estimasi biaya rencana (merah jika melebihi sisa). Klik baris untuk membuka/menutup; tombol “+ Rencana” tersedia di semua level (subkomponen, akun, item) dan estimasi dijumlahkan ke level di atasnya.";
+ foot.textContent="Realisasi = kolom “s.d. Periode” pada laporan. Sisa setelah estimasi = sisa pagu − estimasi biaya rencana (merah jika melebihi sisa). Done = kegiatan selesai (biaya tetap dihitung); Cancelled = dibatalkan (biaya dikembalikan ke sisa). Klik baris untuk membuka/menutup; tombol “+ Rencana” tersedia di semua level (subkomponen, akun, item) dan estimasi dijumlahkan ke level di atasnya.";
  S.forEach(s=>open.add(s.kode));render();
  q.oninput=render;ex.onclick=()=>{S.forEach(s=>{open.add(s.kode);s.akun.forEach(a=>open.add(aKey(s,a)))});render()};
  co.onclick=()=>{open.clear();render()};lv.onclick=()=>{open.clear();S.forEach(s=>open.add(s.kode));render()};
@@ -143,10 +145,10 @@ const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+Stri
 const ctxOf=k=>{const [sk,ak,ik]=k.split("|"),s=D.subkomponen.find(x=>x.kode===sk);if(!s)return k;const a=s.akun.find(x=>x.kode===ak),i=a&&a.item.find(x=>x.kode===ik);return s.name+(a?" › "+a.name:"")+(i?" › "+i.name:"")};
 function upcoming(){
  const t0=ymd(new Date()),all=[];
- Object.entries(plans).forEach(([k,l])=>l.forEach(p=>p.tgl&&all.push({...p,k})));
+ Object.entries(plans).forEach(([k,l])=>l.forEach(p=>p.tgl&&!p.status&&all.push({...p,k})));
  const up=all.filter(p=>p.tgl>=t0).sort((a,b)=>a.tgl.localeCompare(b.tgl)||a.keg.localeCompare(b.keg)),late=all.length-up.length;
  const dd=t=>Math.round((new Date(t+"T00:00:00")-new Date(t0+"T00:00:00"))/864e5);
- const li=up.slice(0,5).map(p=>{const n=dd(p.tgl);return `<li><span class="d">${tgl(p.tgl)}<span class="bd ${n<=1?"now":""}">${n===0?"Hari ini":n===1?"Besok":n+" hari lagi"}</span></span><span class="c">${esc(p.keg)}<small style="color:var(--mute)">${esc(ctxOf(p.k))}${p.ket?" · "+esc(p.ket):""}</small></span><span class="m">${R(p.biaya)}</span></li>`}).join("");
+ const li=up.slice(0,5).map(p=>{const n=dd(p.tgl);return `<li><span class="d">${tgl(p.tgl)}<span class="bd ${n<=1?"now":""}">${n===0?"Hari ini":n===1?"Besok":n+" hari lagi"}</span></span><span class="c">${esc(p.keg)}<small style="color:var(--mute)">${esc(ctxOf(p.k))}${p.ket?" · "+esc(p.ket):""}</small></span><span class="m">${R(p.biaya)}</span><span class="ac">${btn("done",p.k,p.id,"✓ Done")}${btn("cancel",p.k,p.id,"✕ Cancelled")}</span></li>`}).join("");
  return `<div class="card up"><small>Jadwal kegiatan terdekat</small>${li?`<ul>${li}</ul>`:`<p style="margin:8px 0 0;color:var(--mute)">Belum ada rencana dengan tanggal mendatang.</p>`}${up.length>5?`<small style="display:block;margin-top:6px">+${up.length-5} jadwal lainnya</small>`:""}${late?`<small style="display:block;margin-top:6px;color:var(--sisa)">${late} rencana sudah melewati tanggalnya.</small>`:""}</div>`}
 function kpis(){
  const S=D.subkomponen,t=k=>sum(S,s=>s[k]),pg=t("pagu"),rl=t("sd"),ss=t("sisa"),e=sum(S,sEst);
@@ -163,7 +165,7 @@ const btn=(a,k,id,tx)=>!canEdit?"":`<button class="sm" data-a="${a}" data-k="${k
 function cells(x,e,n,aksi){const p=P(x.sd,x.pagu),sa=x.sisa-e;
  return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(Math.max(p,0),100)}%"></i></div></td>
  <td class="l">${n?n+" rencana":"–"}</td><td class="l">–</td><td>–</td><td>${e?N(e):"–"}</td><td class="${sa<0?"neg":""}">${N(sa)}</td><td>${aksi||""}</td>`}
-function planRows(k,pad){return lst(k).map(p=>`<tr class="plan"><td style="padding-left:${pad}px">↳ Rencana kegiatan</td>${"<td></td>".repeat(7)}<td class="l">${esc(p.keg)}</td><td class="l">${p.ket?esc(p.ket):"–"}</td><td>${tgl(p.tgl)}</td><td>${N(p.biaya)}</td><td></td><td>${btn("edit",k,p.id,"Ubah")}${btn("del",k,p.id,"Hapus")}</td></tr>`).join("")}
+function planRows(k,pad){return lst(k).map(p=>{const st=p.status,x=st==="cancelled",lb=st==="done"?' <span class="bd">Selesai</span>':x?' <span class="bd now">Dibatalkan</span>':"";return `<tr class="plan${x?" x":""}"><td style="padding-left:${pad}px">↳ Rencana kegiatan${lb}</td>${"<td></td>".repeat(7)}<td class="l">${esc(p.keg)}</td><td class="l">${p.ket?esc(p.ket):"–"}</td><td>${tgl(p.tgl)}</td><td class="nm">${N(p.biaya)}</td><td></td><td>${btn("edit",k,p.id,"Ubah")}${btn("del",k,p.id,"Hapus")}${st?btn("reopen",k,p.id,"Aktifkan lagi"):""}</td></tr>`}).join("")}
 function render(){
  kpis();
  const t=q.value.trim().toLowerCase(),has=x=>!t||(x.kode+" "+x.name).toLowerCase().includes(t);
@@ -179,15 +181,18 @@ function render(){
    h+=`<tr class="akun" data-k="${key}"><td><span class="tg">${a.item.length?(ao?"▾":"▸"):""}</span>${a.kode} — ${esc(a.name)}</td>${cells(a,aEst(s,a),aCnt(s,a),btn("add",key,"","+ Rencana"))}</tr>`;
    h+=planRows(key,56);
    if(ao)(t&&!has(a)&&!has(s)?it:a.item).forEach(i=>{const k=iKey(s,a,i);
-    h+=`<tr class="item"><td>${i.kode} ${esc(i.name)}</td>${cells(i,est(k),lst(k).length,btn("add",k,"","+ Rencana"))}</tr>`+planRows(k,84)})});
+    h+=`<tr class="item"><td>${i.kode} ${esc(i.name)}</td>${cells(i,est(k),cnt(k),btn("add",k,"","+ Rencana"))}</tr>`+planRows(k,84)})});
  });
  h+=`<tr class="tot"><td>Total bidang PPA I</td>${cells({...tot},te,tn)}</tr>`;
  tb.innerHTML=h;
  tb.querySelectorAll("tr[data-k]").forEach(r=>r.onclick=()=>{const k=r.dataset.k;open.has(k)?open.delete(k):open.add(k);render()});
- tb.querySelectorAll("button[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();act(b.dataset.a,b.dataset.k,b.dataset.id)});
+ document.querySelectorAll("#tb button[data-a],#kpi button[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();act(b.dataset.a,b.dataset.k,b.dataset.id)});
 }
 async function act(a,key,id){
  if(!canEdit)return;
+ if(a==="done"||a==="cancel"||a==="reopen"){
+  if(a==="cancel"&&!confirm("Tandai rencana ini dibatalkan? Estimasi biayanya akan dikembalikan ke sisa setelah estimasi."))return;
+  if(await send({op:"status",key,id,status:a==="done"?"done":a==="cancel"?"cancelled":""}))render();return}
  if(a==="del"){if(confirm("Hapus rencana ini?")&&await send({op:"delete",key,id}))render();return}
  const cur=id?lst(key).find(p=>p.id===id):null;
  dt.textContent=cur?"Ubah rencana kegiatan":"Tambah rencana kegiatan";ds.textContent=key.split("|").join(" › ");

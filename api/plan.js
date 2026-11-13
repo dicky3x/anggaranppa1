@@ -34,9 +34,16 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: "Isian tidak valid" });
       const list = plans[key] || [];
       const id = p.id && list.some((x) => x.id === p.id) ? p.id : crypto.randomUUID();
-      const rec = { id, keg, ket, tgl, biaya }, i = list.findIndex((x) => x.id === id);
+      const i = list.findIndex((x) => x.id === id), old = i >= 0 ? list[i] : null;
+      const rec = { id, keg, ket, tgl, biaya, ...(old && old.status ? { status: old.status } : {}) };
       i >= 0 ? (list[i] = rec) : list.push(rec);
       plans[key] = list;
+    } else if (b.op === "status") {
+      const st = String(b.status || "");
+      if (!["", "done", "cancelled"].includes(st)) return res.status(400).json({ error: "Status tidak valid" });
+      const rec = (plans[key] || []).find((x) => x.id === b.id);
+      if (!rec) return res.status(404).json({ error: "Rencana tidak ditemukan" });
+      if (st) rec.status = st; else delete rec.status;
     } else if (b.op === "delete") {
       plans[key] = (plans[key] || []).filter((x) => x.id !== b.id);
       if (!plans[key].length) delete plans[key];
