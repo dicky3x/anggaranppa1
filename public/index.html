@@ -15,6 +15,7 @@ h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
 .card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
 .kpi b{display:block;font:600 24px "IBM Plex Sans Condensed",sans-serif;margin-top:2px}
 .kpi small{color:var(--mute)}
+.up{grid-column:1/-1}.up ul{list-style:none;margin:8px 0 0;padding:0}.up li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}.up .d{width:215px;font-weight:600;white-space:nowrap}.up .bd{display:inline-block;margin-left:6px;padding:0 7px;border-radius:10px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--real) 16%,var(--sf));color:var(--real)}.up .bd.now{background:color-mix(in srgb,var(--sisa) 16%,var(--sf));color:var(--sisa)}.up .c{flex:1;min-width:220px}.up .c small{display:block}.up .m{white-space:nowrap;font-weight:500}
 .kpi .real b{color:var(--real)}.kpi .sisa b{color:var(--sisa)}
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
 @media(max-width:860px){.grid{grid-template-columns:1fr}}
@@ -57,7 +58,7 @@ body:not(.ok) main{display:none}
  <button style="width:100%;background:var(--real);color:#fff;border-color:var(--real)">Masuk</button></form></div>
 <main>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><h1>Anggaran Bidang PPA I</h1>
-<p class="sub" id="meta">Memuat data…</p></div><button id="lo" style="flex:none">Keluar</button></div>
+<p class="sub" id="meta">Memuat data…</p></div><div style="display:flex;align-items:center;gap:10px;flex:none"><span id="who" style="color:var(--mute);font-size:13px;text-align:right"></span><button id="lo">Keluar</button></div></div>
 <section class="kpi" id="kpi"></section>
 <section class="grid">
  <div class="card"><h2>Pagu, realisasi, dan sisa per subkomponen</h2><div class="chart"><canvas id="c1"></canvas></div></div>
@@ -105,13 +106,13 @@ async function send(b){
  if(!r.ok){let m="";try{m=(await r.json()).error}catch{}alert("Gagal menyimpan. "+m);return false}
  plans=(await r.json()).plans;return true;
 }
-let inited=false;
+let inited=false,canEdit=false;
 function showLogin(){lg.style.display="grid";(lu.value?lp:lu).focus()}
 async function boot(){
  try{const r=await fetch("/api/data");
   if(r.status===401)return showLogin();
   if(!r.ok){let m="";try{m=(await r.json()).error}catch{}lg.style.display="grid";le.textContent="Gagal memuat data. "+m;return}
-  D=await r.json();await load();lg.style.display="none";document.body.classList.add("ok");if(!inited){inited=true;init()}else render()
+  D=await r.json();canEdit=(D.me||{}).role==="edit";who.textContent=(D.me?D.me.user:"")+" · "+(canEdit?"Dapat input":"Hanya lihat");await load();lg.style.display="none";document.body.classList.add("ok");if(!inited){inited=true;init()}else render()
  }catch(e){lg.style.display="grid";le.textContent="Gagal memuat data: "+e}
 }
 lf.onsubmit=async e=>{e.preventDefault();le.textContent="";
@@ -138,6 +139,15 @@ function init(){
  co.onclick=()=>{open.clear();render()};lv.onclick=()=>{open.clear();S.forEach(s=>open.add(s.kode));render()};
  fx.onclick=()=>dlg.close();
 }
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const ctxOf=k=>{const [sk,ak,ik]=k.split("|"),s=D.subkomponen.find(x=>x.kode===sk);if(!s)return k;const a=s.akun.find(x=>x.kode===ak),i=a&&a.item.find(x=>x.kode===ik);return s.name+(a?" › "+a.name:"")+(i?" › "+i.name:"")};
+function upcoming(){
+ const t0=ymd(new Date()),all=[];
+ Object.entries(plans).forEach(([k,l])=>l.forEach(p=>p.tgl&&all.push({...p,k})));
+ const up=all.filter(p=>p.tgl>=t0).sort((a,b)=>a.tgl.localeCompare(b.tgl)||a.keg.localeCompare(b.keg)),late=all.length-up.length;
+ const dd=t=>Math.round((new Date(t+"T00:00:00")-new Date(t0+"T00:00:00"))/864e5);
+ const li=up.slice(0,5).map(p=>{const n=dd(p.tgl);return `<li><span class="d">${tgl(p.tgl)}<span class="bd ${n<=1?"now":""}">${n===0?"Hari ini":n===1?"Besok":n+" hari lagi"}</span></span><span class="c">${esc(p.keg)}<small style="color:var(--mute)">${esc(ctxOf(p.k))}${p.ket?" · "+esc(p.ket):""}</small></span><span class="m">${R(p.biaya)}</span></li>`}).join("");
+ return `<div class="card up"><small>Jadwal kegiatan terdekat</small>${li?`<ul>${li}</ul>`:`<p style="margin:8px 0 0;color:var(--mute)">Belum ada rencana dengan tanggal mendatang.</p>`}${up.length>5?`<small style="display:block;margin-top:6px">+${up.length-5} jadwal lainnya</small>`:""}${late?`<small style="display:block;margin-top:6px;color:var(--sisa)">${late} rencana sudah melewati tanggalnya.</small>`:""}</div>`}
 function kpis(){
  const S=D.subkomponen,t=k=>sum(S,s=>s[k]),pg=t("pagu"),rl=t("sd"),ss=t("sisa"),e=sum(S,sEst);
  kpi.innerHTML=`<div class="card"><small>Pagu revisi</small><b>${R(pg)}</b></div>
@@ -145,11 +155,11 @@ function kpis(){
  <div class="card sisa"><small>Sisa pagu</small><b>${R(ss)}</b></div>
  <div class="card"><small>Persentase realisasi</small><b>${F(P(rl,pg))}</b></div>
  <div class="card"><small>Estimasi biaya rencana</small><b>${R(e)}</b></div>
- <div class="card ${ss-e<0?"sisa":"real"}"><small>Sisa setelah estimasi</small><b>${R(ss-e)}</b></div>`;
+ <div class="card ${ss-e<0?"sisa":"real"}"><small>Sisa setelah estimasi</small><b>${R(ss-e)}</b></div>${upcoming()}`;
  c1.data.datasets[0].data=S.map(s=>s.sd);c1.data.datasets[1].data=S.map(s=>Math.min(sEst(s),s.sisa));
  c1.data.datasets[2].data=S.map(s=>Math.max(0,s.sisa-sEst(s)));c1.update();
 }
-const btn=(a,k,id,tx)=>`<button class="sm" data-a="${a}" data-k="${k}" ${id?`data-id="${id}"`:""}>${tx}</button>`;
+const btn=(a,k,id,tx)=>!canEdit?"":`<button class="sm" data-a="${a}" data-k="${k}" ${id?`data-id="${id}"`:""}>${tx}</button>`;
 function cells(x,e,n,aksi){const p=P(x.sd,x.pagu),sa=x.sisa-e;
  return `<td>${N(x.pagu)}</td><td>${N(x.lalu)}</td><td>${N(x.ini)}</td><td>${N(x.sd)}</td><td>${F(p)}</td><td class="${x.sisa<0?"neg":""}">${N(x.sisa)}</td><td><div class="bar"><i style="width:${Math.min(Math.max(p,0),100)}%"></i></div></td>
  <td class="l">${n?n+" rencana":"–"}</td><td class="l">–</td><td>–</td><td>${e?N(e):"–"}</td><td class="${sa<0?"neg":""}">${N(sa)}</td><td>${aksi||""}</td>`}
@@ -177,6 +187,7 @@ function render(){
  tb.querySelectorAll("button[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();act(b.dataset.a,b.dataset.k,b.dataset.id)});
 }
 async function act(a,key,id){
+ if(!canEdit)return;
  if(a==="del"){if(confirm("Hapus rencana ini?")&&await send({op:"delete",key,id}))render();return}
  const cur=id?lst(key).find(p=>p.id===id):null;
  dt.textContent=cur?"Ubah rencana kegiatan":"Tambah rencana kegiatan";ds.textContent=key.split("|").join(" › ");

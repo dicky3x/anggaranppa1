@@ -15,11 +15,13 @@ const load = async () => { const v = await cmd(["GET", KEY]); return v ? JSON.pa
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
-  if (!A.authed(req)) return res.status(401).json({ error: "Belum login" });
+  const me = A.authed(req);
+  if (!me) return res.status(401).json({ error: "Belum login" });
   if (!URL_ || !TOKEN) return res.status(503).json({ error: "Database belum terhubung" });
   try {
     if (req.method === "GET") return res.status(200).json({ plans: await load() });
     if (req.method !== "POST") return res.status(405).json({ error: "Metode tidak didukung" });
+    if (me.role !== "edit") return res.status(403).json({ error: "Akun ini hanya dapat melihat, tidak dapat mengubah data." });
 
     const b = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     const key = String(b.key || "");
