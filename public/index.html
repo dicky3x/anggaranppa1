@@ -4,9 +4,10 @@
 <title>Dashboard Anggaran Bidang PPA I – Kanwil DJPb Riau</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="lembur-core.js"></script><script src="parser.js"></script><script src="lembur.js"></script>
 <style>
-:root{--ok:#15803d;--bad:#b91c1c;--bg:#f3f5f7;--sf:#fff;--ink:#162033;--mute:#5d6b82;--line:#dde3ea;--real:#0f766e;--sisa:#c2410c;--pagu:#1e3a5f;--hd:#eaf0f6}
-@media(prefers-color-scheme:dark){:root{--ok:#4ade80;--bad:#f87171;--bg:#0f1622;--sf:#172133;--ink:#e6ebf3;--mute:#94a3b8;--line:#27344b;--real:#2dd4bf;--sisa:#fb923c;--pagu:#7aa2d6;--hd:#1d2a40}}
+:root{--ok:#15803d;--bad:#b91c1c;--warn:#b45309;--bg:#f3f5f7;--sf:#fff;--ink:#162033;--mute:#5d6b82;--line:#dde3ea;--real:#0f766e;--sisa:#c2410c;--pagu:#1e3a5f;--hd:#eaf0f6}
+@media(prefers-color-scheme:dark){:root{--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--bg:#0f1622;--sf:#172133;--ink:#e6ebf3;--mute:#94a3b8;--line:#27344b;--real:#2dd4bf;--sisa:#fb923c;--pagu:#7aa2d6;--hd:#1d2a40}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,sans-serif}
 main{max-width:1280px;margin:0 auto;padding:24px 16px 48px}
 h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
@@ -15,10 +16,13 @@ h1{font:600 26px "IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;margin:0}
 .card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
 .kpi b{display:block;font:600 24px "IBM Plex Sans Condensed",sans-serif;margin-top:2px}
 .kpi small{color:var(--mute)}
-.up{grid-column:1/-1}.up ul{list-style:none;margin:8px 0 0;padding:0}.up li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}.up .d{width:215px;font-weight:600;white-space:nowrap}.bd{display:inline-block;margin-left:6px;padding:0 7px;border-radius:10px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--real) 16%,var(--sf));color:var(--real)}.bd.ok{background:color-mix(in srgb,var(--ok) 18%,var(--sf));color:var(--ok)}.bd.no{background:color-mix(in srgb,var(--bad) 18%,var(--sf));color:var(--bad)}.bd.now{background:color-mix(in srgb,var(--sisa) 16%,var(--sf));color:var(--sisa)}.up .c{flex:1;min-width:220px}.up .c small{display:block}.up .m{white-space:nowrap;font-weight:500}.up .ac{white-space:nowrap}
+.up{grid-column:1/-1}.up ul{list-style:none;margin:8px 0 0;padding:0}.up li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}.up .d{width:215px;font-weight:600;white-space:nowrap}.bd{display:inline-block;margin-left:6px;padding:0 7px;border-radius:10px;font-size:12px;font-weight:500;background:color-mix(in srgb,var(--real) 16%,var(--sf));color:var(--real)}.bd.ok{background:color-mix(in srgb,var(--ok) 18%,var(--sf));color:var(--ok)}.bd.no{background:color-mix(in srgb,var(--bad) 18%,var(--sf));color:var(--bad)}.bd.warn{background:color-mix(in srgb,var(--warn) 20%,var(--sf));color:var(--warn)}.bd.now{background:color-mix(in srgb,var(--sisa) 16%,var(--sf));color:var(--sisa)}.up .c{flex:1;min-width:220px}.up .c small{display:block}.up .m{white-space:nowrap;font-weight:500}.up .ac{white-space:nowrap}
 tr.plan.ok td{background:color-mix(in srgb,var(--ok) 16%,var(--sf));color:var(--ok)}tr.plan.ok td:first-child{box-shadow:inset 3px 0 0 var(--ok),1px 0 0 var(--line)}
 tr.plan.x td{background:color-mix(in srgb,var(--bad) 16%,var(--sf));color:var(--bad)}tr.plan.x td:first-child{box-shadow:inset 3px 0 0 var(--bad),1px 0 0 var(--line)}
 tr.plan.x td.l,tr.plan.x td.nm{text-decoration:line-through}
+.up ul{max-height:380px;overflow-y:auto}.up .uh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.tg2{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.up li.emp{color:var(--mute)}.up li.sep{font-size:12px;font-weight:600;color:var(--mute);padding-top:10px;border-top:2px solid var(--line)}
+.up li.late{background:color-mix(in srgb,var(--warn) 15%,var(--sf));box-shadow:inset 3px 0 0 var(--warn);padding-left:10px;padding-right:10px;border-radius:4px}.up li.late .d,.up li.late .c{color:var(--warn)}
 .up li.ok{background:color-mix(in srgb,var(--ok) 14%,var(--sf));box-shadow:inset 3px 0 0 var(--ok)}.up li.no{background:color-mix(in srgb,var(--bad) 14%,var(--sf));box-shadow:inset 3px 0 0 var(--bad)}.up li.ok,.up li.no{padding-left:10px;padding-right:10px;border-radius:4px}.up li.ok .d,.up li.ok .c,.up li.ok .m{color:var(--ok)}.up li.no .d,.up li.no .c,.up li.no .m{color:var(--bad)}.up li.no .c,.up li.no .m{text-decoration:line-through}
 .kpi .real b{color:var(--real)}.kpi .sisa b{color:var(--sisa)}
 .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:12px 0}
@@ -54,6 +58,7 @@ body:not(.ok) main{display:none}
 #lg{position:fixed;inset:0;background:var(--bg);display:none;place-items:center;z-index:9}
 #lg form{background:var(--sf);border:1px solid var(--line);border-radius:10px;padding:24px;width:min(360px,92vw)}
 #lg h1{font-size:22px;margin-bottom:4px}#lg input{width:100%;margin:12px 0 0}#lg input+input{margin-bottom:8px}
+.tabs{display:flex;gap:4px;margin:0 0 14px;border-bottom:1px solid var(--line)}.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 14px;font-weight:600;color:var(--mute)}.tabs button.on{color:var(--ink);border-color:var(--real)}
 .neg{color:var(--sisa)}.foot{color:var(--mute);font-size:12px;margin-top:10px}
 </style></head><body><div id="lg"><form id="lf"><h1>Dashboard PPA I</h1><small style="color:var(--mute)">Kanwil DJPb Riau · silakan login</small>
  <input id="lu" placeholder="Pengguna" autocomplete="username" aria-label="Pengguna" required>
@@ -62,7 +67,9 @@ body:not(.ok) main{display:none}
  <button style="width:100%;background:var(--real);color:#fff;border-color:var(--real)">Masuk</button></form></div>
 <main>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><h1>Anggaran Bidang PPA I</h1>
-<p class="sub" id="meta">Memuat data…</p></div><div style="display:flex;align-items:center;gap:10px;flex:none"><span id="who" style="color:var(--mute);font-size:13px;text-align:right"></span><button id="lo">Keluar</button></div></div>
+<p class="sub" id="meta">Memuat data…</p></div><div style="display:flex;align-items:center;gap:10px;flex:none"><button id="upb" hidden>Unggah PDF terbaru</button><input id="upf" type="file" accept="application/pdf,.pdf" hidden><span id="who" style="color:var(--mute);font-size:13px;text-align:right"></span><button id="lo">Keluar</button></div></div>
+<nav class="tabs"><button class="on" data-tab="ang">Anggaran</button><button data-tab="lem">Lembur Pegawai</button></nav>
+<div id="tab-ang">
 <section class="kpi" id="kpi"></section>
 <section class="grid">
  <div class="card"><h2>Pagu, realisasi, dan sisa per subkomponen</h2><div class="chart"><canvas id="c1"></canvas></div></div>
@@ -74,7 +81,11 @@ body:not(.ok) main{display:none}
   <button id="ex">Buka semua</button><button id="co">Tutup semua</button><button id="lv">Sampai akun saja</button></div>
  <div class="wrap"><table><thead><tr><th>Uraian</th><th>Pagu</th><th>Periode lalu</th><th>Periode ini</th><th>Realisasi s.d. periode</th><th>%</th><th>Sisa</th><th>Serapan</th><th class="pl">Rencana kegiatan</th><th class="pl">Keterangan</th><th class="pl">Tanggal rencana</th><th class="pl">Estimasi biaya</th><th class="pl">Sisa setelah estimasi</th><th class="pl">Aksi</th></tr></thead><tbody id="tb"></tbody></table></div>
  <p class="foot" id="foot"></p>
-</section></main>
+</section></div>
+<div id="tab-lem" hidden></div></main>
+<dialog id="ud" style="width:min(680px,94vw)"><h2 style="margin:0 0 6px;font-size:15px">Unggah Laporan Ketersediaan Dana Detail (PDF)</h2>
+ <div id="udb">Membaca PDF…</div>
+ <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button id="udx">Batal</button><button id="udv" disabled style="background:var(--real);color:#fff;border-color:var(--real)">Terapkan</button></div></dialog>
 <dialog id="dlg"><h2 id="dt" style="margin:0 0 4px;font-size:15px"></h2><small id="ds" style="color:var(--mute)"></small>
  <label for="fk">Rencana kegiatan</label><input id="fk" maxlength="200">
  <label for="fn">Keterangan (opsional)</label><textarea id="fn" rows="2" maxlength="300"></textarea>
@@ -117,16 +128,47 @@ async function boot(){
  try{const r=await fetch("/api/data");
   if(r.status===401)return showLogin();
   if(!r.ok){let m="";try{m=(await r.json()).error}catch{}lg.style.display="grid";le.textContent="Gagal memuat data. "+m;return}
-  D=await r.json();canEdit=(D.me||{}).role==="edit";who.textContent=(D.me?D.me.user:"")+" · "+(canEdit?"Dapat input":"Hanya lihat");await load();lg.style.display="none";document.body.classList.add("ok");if(!inited){inited=true;init()}else render()
+  D=await r.json();canEdit=(D.me||{}).role==="edit";who.textContent=(D.me?D.me.user:"")+" · "+(canEdit?"Dapat input":"Hanya lihat");upb.hidden=!canEdit;setMeta();await load();lg.style.display="none";document.body.classList.add("ok");if(!inited){inited=true;init()}else render()
  }catch(e){lg.style.display="grid";le.textContent="Gagal memuat data: "+e}
 }
 lf.onsubmit=async e=>{e.preventDefault();le.textContent="";
  const r=await fetch("/api/login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({user:lu.value.trim(),password:lp.value})});
  if(r.ok){lp.value="";boot()}else{let m="";try{m=(await r.json()).error}catch{}le.textContent=m||("Gagal masuk ("+r.status+")")}};
 lo.onclick=async()=>{await fetch("/api/login",{method:"DELETE"});location.reload()};
+function setMeta(){const u=D.diunggah?` · Diunggah ${new Date(D.diunggah.waktu).toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"})} oleh ${esc(D.diunggah.oleh)}`:"";
+ meta.innerHTML=`Kanwil DJPb Provinsi Riau · Laporan Ketersediaan Dana Detail TA 2026 · Periode ${esc(D.periode)} · Sumber: ${esc(D.sumber)}${u}`}
+let lemInit=false;
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+ const t=b.dataset.tab;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));
+ document.getElementById("tab-ang").hidden=t!=="ang";document.getElementById("tab-lem").hidden=t!=="lem";
+ if(t==="lem"){if(!lemInit){lemInit=true;Lembur.init(document.getElementById("tab-lem"),{canEdit})}else Lembur.render()}});
+// ---- unggah PDF terbaru langsung dari Vercel ----
+let pend=null;const PJ="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/";
+upb.onclick=()=>upf.click();udx.onclick=()=>ud.close();
+upf.onchange=async()=>{const f=upf.files[0];upf.value="";if(!f)return;pend=null;udv.disabled=true;udb.textContent="Membaca PDF…";ud.showModal();
+ try{
+  if(!/\.pdf$/i.test(f.name)&&f.type!=="application/pdf")throw new Error("File harus berformat PDF.");
+  const pdfjs=await import(PJ+"pdf.min.mjs");pdfjs.GlobalWorkerOptions.workerSrc=PJ+"pdf.worker.min.mjs";
+  const pdf=await pdfjs.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+  const {data,hilang}=ParserLaporan.parseLines(await ParserLaporan.linesFromPdf(pdf),f.name);
+  if(!data.subkomponen.length)throw new Error("Tidak ada baris bidang PPA I yang terbaca. Pastikan file adalah Laporan Ketersediaan Dana Detail.");
+  pend=data;const t=(a,k)=>a.reduce((x,y)=>x+y[k],0),o=D.subkomponen,n=data.subkomponen;
+  udb.innerHTML=`<p style="margin:0 0 8px">File <b>${esc(f.name)}</b> · Periode <b>${esc(data.periode||"?")}</b> (data saat ini: ${esc(D.periode)})</p>
+  ${hilang.length?`<p class="neg">Kode tidak ditemukan di PDF: ${hilang.map(esc).join(", ")}. Data baru tidak akan memuat baris tersebut.</p>`:""}
+  <div class="wrap" style="max-height:260px;overflow:auto"><table style="min-width:520px"><thead><tr><th style="position:static;min-width:0">Subkomponen</th><th>Pagu</th><th>Realisasi</th><th>Sisa</th></tr></thead><tbody>${n.map(s=>`<tr><td style="position:static;min-width:0;max-width:none;box-shadow:none;background:none;white-space:normal">${esc(s.kode)} ${esc(s.name)}</td><td>${N(s.pagu)}</td><td>${N(s.sd)}</td><td>${N(s.sisa)}</td></tr>`).join("")}</tbody></table></div>
+  <p style="margin:8px 0 0">Total realisasi: ${R(t(o,"sd"))} → <b>${R(t(n,"sd"))}</b> · Total pagu: ${R(t(o,"pagu"))} → <b>${R(t(n,"pagu"))}</b></p>
+  <small style="color:var(--mute)">Rencana kegiatan yang sudah diinput tetap tersimpan dan mengikuti kode item yang sama.</small>`;
+  udv.disabled=false;
+ }catch(e){udb.innerHTML=`<p class="neg">${esc(e.message||e)}</p>`}};
+udv.onclick=async()=>{if(!pend)return;udv.disabled=true;
+ const r=await fetch("/api/upload",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({data:pend})});
+ if(r.status===401){location.reload();return}
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok){alert("Gagal menyimpan. "+(j.error||""));udv.disabled=false;return}
+ ud.close();pend=null;await boot()};
 boot();
 function init(){
- meta.textContent=`Kanwil DJPb Provinsi Riau · Laporan Ketersediaan Dana Detail TA 2026 · Periode ${D.periode} · Sumber: ${D.sumber}`;
+ setMeta();
  if(mode==="local"){bn.style.display="block";bn.textContent="Database belum terhubung: rencana hanya tersimpan di browser ini. Hubungkan Upstash Redis di Vercel agar dibagi ke semua pengguna (lihat README)."}
  const S=D.subkomponen,base={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:css("--ink")}}}};
  c1=new Chart(document.getElementById("c1"),{type:"bar",data:{labels:S.map(s=>s.name.replace("Dukungan Tusi - ","").replace("Dukungan Pelaksanaan Tusi ","")+" ("+s.kode.split(".").slice(-2).join(".")+")"),datasets:[
@@ -146,13 +188,21 @@ function init(){
 }
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const ctxOf=k=>{const [sk,ak,ik]=k.split("|"),s=D.subkomponen.find(x=>x.kode===sk);if(!s)return k;const a=s.akun.find(x=>x.kode===ak),i=a&&a.item.find(x=>x.kode===ik);return s.name+(a?" › "+a.name:"")+(i?" › "+i.name:"")};
+let showPast=true;try{showPast=localStorage.getItem("ppa1past")!=="0"}catch{}
 function upcoming(){
  const t0=ymd(new Date()),all=[];
  Object.entries(plans).forEach(([k,l])=>l.forEach(p=>p.tgl&&all.push({...p,k})));
- const up=all.filter(p=>p.tgl>=t0).sort((a,b)=>a.tgl.localeCompare(b.tgl)||a.keg.localeCompare(b.keg)),late=all.filter(p=>p.tgl<t0&&!p.status).length;
+ const cmp=(a,b)=>a.tgl.localeCompare(b.tgl)||a.keg.localeCompare(b.keg);
+ const up=all.filter(p=>p.tgl>=t0).sort(cmp);
+ const past=all.filter(p=>p.tgl<t0).sort((a,b)=>(!!a.status-!!b.status)||cmp(b,a));
+ const over=past.filter(p=>!p.status).length;
  const dd=t=>Math.round((new Date(t+"T00:00:00")-new Date(t0+"T00:00:00"))/864e5);
- const li=up.slice(0,5).map(p=>{const n=dd(p.tgl);return `<li class="${p.status==="done"?"ok":p.status==="cancelled"?"no":""}"><span class="d">${tgl(p.tgl)}<span class="bd ${n<=1?"now":""}">${n===0?"Hari ini":n===1?"Besok":n+" hari lagi"}</span></span><span class="c">${esc(p.keg)}${p.status==="done"?' <span class="bd ok">Selesai</span>':p.status==="cancelled"?' <span class="bd no">Dibatalkan</span>':""}<small style="color:var(--mute)">${esc(ctxOf(p.k))}${p.ket?" · "+esc(p.ket):""}</small></span><span class="m">${R(p.biaya)}</span><span class="ac">${p.status?btn("reopen",p.k,p.id,"Aktifkan lagi"):btn("done",p.k,p.id,"✓ Done")+btn("cancel",p.k,p.id,"✕ Cancelled")}</span></li>`}).join("");
- return `<div class="card up"><small>Jadwal kegiatan terdekat</small>${li?`<ul>${li}</ul>`:`<p style="margin:8px 0 0;color:var(--mute)">Belum ada rencana dengan tanggal mendatang.</p>`}${up.length>5?`<small style="display:block;margin-top:6px">+${up.length-5} jadwal lainnya</small>`:""}${late?`<small style="display:block;margin-top:6px;color:var(--sisa)">${late} rencana sudah melewati tanggalnya.</small>`:""}</div>`}
+ const row=p=>{const n=dd(p.tgl),od=n<0&&!p.status,cls=p.status==="done"?"ok":p.status==="cancelled"?"no":od?"late":"";
+  const bd=n<0?`<span class="bd ${od?"warn":""}">${-n} hari lalu</span>`:`<span class="bd ${n<=1?"now":""}">${n===0?"Hari ini":n===1?"Besok":n+" hari lagi"}</span>`;
+  const sb=p.status==="done"?' <span class="bd ok">Selesai</span>':p.status==="cancelled"?' <span class="bd no">Dibatalkan</span>':od?' <span class="bd warn">Belum ditandai</span>':"";
+  return `<li class="${cls}"><span class="d">${tgl(p.tgl)}${bd}</span><span class="c">${esc(p.keg)}${sb}<small style="color:var(--mute)">${esc(ctxOf(p.k))}${p.ket?" · "+esc(p.ket):""}</small></span><span class="m">${R(p.biaya)}</span><span class="ac">${p.status?btn("reopen",p.k,p.id,"Aktifkan lagi"):btn("done",p.k,p.id,"✓ Done")+btn("cancel",p.k,p.id,"✕ Cancelled")}</span></li>`};
+ const body=(up.map(row).join("")||'<li class="emp">Belum ada rencana dengan tanggal mendatang.</li>')+(showPast&&past.length?'<li class="sep">Tanggal sudah lewat</li>'+past.map(row).join(""):"");
+ return `<div class="card up"><div class="uh"><small>Jadwal kegiatan terdekat</small><span>${over?`<span class="bd warn">${over} terlewat, belum ditandai</span> `:""}<label class="tg2"><input type="checkbox" id="sp" ${showPast?"checked":""}> Tampilkan yang sudah lewat</label></span></div><ul>${body}</ul></div>`}
 function kpis(){
  const S=D.subkomponen,t=k=>sum(S,s=>s[k]),pg=t("pagu"),rl=t("sd"),ss=t("sisa"),e=sum(S,sEst);
  kpi.innerHTML=`<div class="card"><small>Pagu revisi</small><b>${R(pg)}</b></div>
@@ -190,6 +240,7 @@ function render(){
  tb.innerHTML=h;
  tb.querySelectorAll("tr[data-k]").forEach(r=>r.onclick=()=>{const k=r.dataset.k;open.has(k)?open.delete(k):open.add(k);render()});
  document.querySelectorAll("#tb button[data-a],#kpi button[data-a]").forEach(b=>b.onclick=e=>{e.stopPropagation();act(b.dataset.a,b.dataset.k,b.dataset.id)});
+ const sp=document.getElementById("sp");if(sp)sp.onchange=()=>{showPast=sp.checked;try{localStorage.setItem("ppa1past",showPast?"1":"0")}catch{}render();document.getElementById("sp").focus()};
 }
 async function act(a,key,id){
  if(!canEdit)return;

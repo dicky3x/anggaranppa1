@@ -71,7 +71,8 @@ def parse(pdf_path):
         else:
             pending = None
         pm = re.match(r"^([A-Z]{2})\s?(Program.*)$", head)
-        code, name = (pm.group(1), pm.group(2)) if pm else head.split(" ", 1) if " " in head else (head, "")
+        gm = re.match(r"^([A-Z]{3})([A-Z][a-z].*)$", head)  # pdfplumber kadang menempelkan kode KRO ke uraian ("EBALayanan")
+        code, name = (pm.group(1), pm.group(2)) if pm else (gm.group(1), gm.group(2)) if gm else head.split(" ", 1) if " " in head else (head, "")
         lv = "program" if pm else level(code)
         if not lv: continue
         vals = dict(pagu=n(m["pagu"]), lock=n(m["lock"]), lalu=n(m["lalu"]), ini=n(m["ini"]),

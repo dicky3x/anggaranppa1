@@ -11,6 +11,19 @@ Rencana kegiatan disimpan di Upstash Redis, tanpa kata sandi tambahan.
 1. Project → Storage → hubungkan **Upstash Redis** (agar rencana kegiatan tersimpan dan dibagi ke semua pengguna).
 2. Deployments → Redeploy.
 
+## Unggah PDF terbaru langsung dari situs (tanpa GitHub)
+Login sebagai akun `edit` → tombol **Unggah PDF terbaru** (kanan atas) → pilih PDF Laporan Ketersediaan Dana Detail → periksa pratinjau → **Terapkan**.
+PDF dibaca di browser Anda (file PDF tidak dikirim ke server); hanya angka bidang PPA I hasil bacaan yang disimpan ke database (Upstash Redis) dan langsung tampil untuk semua pengguna.
+Membutuhkan Upstash Redis terhubung (lihat "Setup sekali di Vercel"). Data hasil unggahan menggantikan `private/data.json` bawaan repo. Daftar kode alokasi PPA I ada di `public/parser.js` (`KODE_PPA1`) dan `scripts/parse_pdf.py`.
+
+## Lembur Pegawai (tab kedua)
+- Kalender lembur per pegawai, jadwal SPTPL, dan konfirmasi **Lembur** / **Tidak lembur** per tanggal.
+- Pagu lembur per orang (s.d. akhir tahun) dan tarif per orang dapat diubah lewat tombol **Ubah**; tidak terkait data PDF.
+- Lembur dilaksanakan mengurangi sisa pagu. Tarif mengikuti jenis hari (weekday/weekend atau centang hari libur) dan jam.
+- Peringatan: jam melebihi batas tarif (weekday maks 2 jam, weekend 2-4 jam), jam di bawah minimum, jam aktual melebihi SPTPL, pagu tidak cukup, SPTPL lewat tanggal belum dikonfirmasi.
+- Rekomendasi hari/jam lembur mendatang agar pagu terpakai optimal (jumlah hari paling sedikit).
+- Data disimpan di Upstash Redis (kunci `ppa1:lembur`). Hanya akun `edit` yang bisa mengubah.
+
 ## Update data dari PDF (cukup upload)
 GitHub → folder `data` → Add file → Upload files → PDF terbaru → Commit.
 GitHub Actions mengekstrak ke `private/data.json`, lalu Vercel deploy ulang otomatis.

@@ -4,5 +4,12 @@
   "installCommand": "",
   "outputDirectory": "public",
   "cleanUrls": true,
-  "functions": { "api/data.js": { "includeFiles": "private/data.json" } }
+  "functions": {
+    "api/data.js": {
+      "includeFiles": "private/data.json"
+    },
+    "api/lembur.js": {
+      "includeFiles": "public/lembur-core.js"
+    }
+  }
 }
